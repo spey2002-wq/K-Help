@@ -1,0 +1,2 @@
+# Next.js `next build` emits public assets here. This file keeps the directory
+# in version control so the Docker build stage can always `COPY /app/public`.
