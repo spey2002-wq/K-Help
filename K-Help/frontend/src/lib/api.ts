@@ -214,6 +214,12 @@ export const api = {
       visaSponsorship?: boolean;
       koreanRequired?: boolean;
       minSalary?: number;
+      maxSalary?: number;
+      salaryPeriod?: string;
+      shift?: string;
+      maxHoursPerWeek?: number;
+      experienceLevel?: string;
+      postedWithinDays?: number;
       page?: number;
       size?: number;
     }) => unwrap<PageResponse<JobListing>>(http.get("/api/jobs", { params })),

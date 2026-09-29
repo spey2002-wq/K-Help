@@ -295,6 +295,28 @@ JOIN users u ON u.username = 'admin'
 WHERE NOT EXISTS (
     SELECT 1 FROM job_listings j WHERE j.title = v.title AND j.company = v.company);
 
+-- Work conditions used by the salary-period, shift, hours and experience filters
+-- (equivalent of migration V5). Safe to re-run: only fills columns that are empty.
+UPDATE job_listings
+SET salary_period = CASE WHEN COALESCE(salary_max, salary_min) < 100000 THEN 'HOURLY' ELSE 'MONTHLY' END
+WHERE salary_period IS NULL
+  AND (salary_min IS NOT NULL OR salary_max IS NOT NULL);
+
+UPDATE job_listings SET shift = 'FLEXIBLE', hours_per_week = 20, experience_level = 'NO_EXPERIENCE'
+WHERE title = 'English-Speaking Cafe Barista' AND shift IS NULL;
+
+UPDATE job_listings SET shift = 'DAY', hours_per_week = 40, experience_level = 'JUNIOR'
+WHERE title = 'Junior Backend Developer (Java)' AND shift IS NULL;
+
+UPDATE job_listings SET shift = 'NIGHT', hours_per_week = 40, experience_level = 'NO_EXPERIENCE'
+WHERE title = 'Warehouse Packing Staff' AND shift IS NULL;
+
+UPDATE job_listings SET shift = 'DAY', hours_per_week = 40, experience_level = 'MID'
+WHERE title = 'English Kindergarten Teacher' AND shift IS NULL;
+
+UPDATE job_listings SET shift = 'FLEXIBLE', hours_per_week = 20, experience_level = 'NO_EXPERIENCE'
+WHERE title LIKE 'Data Annotation Intern%' AND shift IS NULL;
+
 -- ============================================================================
 -- 6. SAMPLE HOUSING LISTINGS
 -- ============================================================================

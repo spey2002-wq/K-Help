@@ -1,7 +1,10 @@
 package com.khelp.job.dto;
 
+import com.khelp.job.entity.ExperienceLevel;
 import com.khelp.job.entity.JobListing;
+import com.khelp.job.entity.JobShift;
 import com.khelp.job.entity.JobType;
+import com.khelp.job.entity.SalaryPeriod;
 import com.khelp.job.entity.ListingStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,6 +23,10 @@ public record JobListingResponse(
         BigDecimal salaryMin,
         BigDecimal salaryMax,
         String salaryCurrency,
+        SalaryPeriod salaryPeriod,
+        JobShift shift,
+        Integer hoursPerWeek,
+        ExperienceLevel experienceLevel,
         String contactEmail,
         LocalDate deadline,
         Long postedById,
@@ -43,6 +50,10 @@ public record JobListingResponse(
                 job.getSalaryMin(),
                 job.getSalaryMax(),
                 job.getSalaryCurrency(),
+                job.getSalaryPeriod(),
+                job.getShift(),
+                job.getHoursPerWeek(),
+                job.getExperienceLevel(),
                 job.getContactEmail(),
                 job.getDeadline(),
                 job.getPostedBy().getId(),
@@ -67,6 +78,10 @@ public record JobListingResponse(
                 job.getSalaryMin(),
                 job.getSalaryMax(),
                 job.getSalaryCurrency(),
+                job.getSalaryPeriod(),
+                job.getShift(),
+                job.getHoursPerWeek(),
+                job.getExperienceLevel(),
                 null,
                 job.getDeadline(),
                 job.getPostedBy().getId(),

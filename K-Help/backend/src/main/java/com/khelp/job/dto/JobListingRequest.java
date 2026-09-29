@@ -1,6 +1,11 @@
 package com.khelp.job.dto;
 
+import com.khelp.job.entity.ExperienceLevel;
+import com.khelp.job.entity.JobShift;
 import com.khelp.job.entity.JobType;
+import com.khelp.job.entity.SalaryPeriod;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -37,6 +42,16 @@ public record JobListingRequest(
 
         @Size(max = 10)
         String salaryCurrency,
+
+        SalaryPeriod salaryPeriod,
+
+        JobShift shift,
+
+        @Min(value = 1, message = "Hours per week must be at least 1")
+        @Max(value = 80, message = "Hours per week cannot exceed 80")
+        Integer hoursPerWeek,
+
+        ExperienceLevel experienceLevel,
 
         @Size(max = 150)
         String contactEmail,

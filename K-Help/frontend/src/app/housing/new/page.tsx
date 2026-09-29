@@ -74,6 +74,7 @@ export default function NewHousingPage() {
         areaSqm: form.areaSqm ? Number(form.areaSqm) : undefined,
         roomCount: form.roomCount ? Number(form.roomCount) : undefined,
         bathroomCount: form.bathroomCount ? Number(form.bathroomCount) : undefined,
+        floorNumber: form.floorNumber ? Number(form.floorNumber) : undefined,
         availableFrom: form.availableFrom || undefined,
         contactPhone: form.contactPhone.trim() || undefined,
         contactEmail: form.contactEmail.trim() || undefined,

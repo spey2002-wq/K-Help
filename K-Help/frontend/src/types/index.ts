@@ -142,6 +142,12 @@ export type JobType =
   | "TEMPORARY"
   | "FREELANCE";
 
+export type JobShift = "DAY" | "EVENING" | "NIGHT" | "ROTATING" | "FLEXIBLE";
+
+export type SalaryPeriod = "HOURLY" | "MONTHLY" | "YEARLY";
+
+export type ExperienceLevel = "NO_EXPERIENCE" | "JUNIOR" | "MID" | "SENIOR";
+
 export type ListingStatus = "PENDING" | "APPROVED" | "REJECTED" | "CLOSED";
 
 export interface JobListing {
@@ -157,6 +163,10 @@ export interface JobListing {
   salaryMin?: number;
   salaryMax?: number;
   salaryCurrency?: string;
+  salaryPeriod?: SalaryPeriod;
+  shift?: JobShift;
+  hoursPerWeek?: number;
+  experienceLevel?: ExperienceLevel;
   contactEmail?: string;
   deadline?: string;
   postedById: number;

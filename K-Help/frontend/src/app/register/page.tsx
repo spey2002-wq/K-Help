@@ -9,16 +9,16 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { ErrorState } from "@/components/ui/Feedback";
 
-const VISA_TYPES = [
-  "D-2 (Student)",
-  "D-4 (Language Trainee)",
-  "D-10 (Job Seeker)",
-  "E-9 (Non-professional Worker)",
-  "E-7 (Professional Worker)",
-  "F-2 (Resident)",
-  "F-4 (Overseas Korean)",
-  "F-5 (Permanent Resident)",
-  "Other",
+const VISA_TYPES: { value: string; label: string }[] = [
+  { value: "D-2", label: "D-2 (Student)" },
+  { value: "D-4", label: "D-4 (Language Trainee)" },
+  { value: "D-10", label: "D-10 (Job Seeker)" },
+  { value: "E-9", label: "E-9 (Non-professional Worker)" },
+  { value: "E-7", label: "E-7 (Professional Worker)" },
+  { value: "F-2", label: "F-2 (Resident)" },
+  { value: "F-4", label: "F-4 (Overseas Korean)" },
+  { value: "F-5", label: "F-5 (Permanent Resident)" },
+  { value: "Other", label: "Other" },
 ];
 
 export default function RegisterPage() {
@@ -129,8 +129,8 @@ export default function RegisterPage() {
             >
               <option value="">Prefer not to say</option>
               {VISA_TYPES.map((visa) => (
-                <option key={visa} value={visa}>
-                  {visa}
+                <option key={visa.value} value={visa.value}>
+                  {visa.label}
                 </option>
               ))}
             </Select>

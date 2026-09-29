@@ -7,7 +7,11 @@ import com.khelp.job.dto.JobApplicationRequest;
 import com.khelp.job.dto.JobApplicationResponse;
 import com.khelp.job.dto.JobListingRequest;
 import com.khelp.job.dto.JobListingResponse;
+import com.khelp.job.dto.JobSearchCriteria;
+import com.khelp.job.entity.ExperienceLevel;
+import com.khelp.job.entity.JobShift;
 import com.khelp.job.entity.JobType;
+import com.khelp.job.entity.SalaryPeriod;
 import com.khelp.job.service.JobService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,10 +51,19 @@ public class JobController {
             @RequestParam(required = false) Boolean visaSponsorship,
             @RequestParam(required = false) Boolean koreanRequired,
             @RequestParam(required = false) BigDecimal minSalary,
+            @RequestParam(required = false) BigDecimal maxSalary,
+            @RequestParam(required = false) SalaryPeriod salaryPeriod,
+            @RequestParam(required = false) JobShift shift,
+            @RequestParam(required = false) Integer maxHoursPerWeek,
+            @RequestParam(required = false) ExperienceLevel experienceLevel,
+            @RequestParam(required = false) Integer postedWithinDays,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(ApiResponse.ok(jobService.search(
-                q, jobType, location, visaSponsorship, koreanRequired, minSalary, page, size)));
+        JobSearchCriteria criteria = new JobSearchCriteria(
+                q, jobType, location, visaSponsorship, koreanRequired,
+                minSalary, maxSalary, salaryPeriod, shift,
+                maxHoursPerWeek, experienceLevel, postedWithinDays);
+        return ResponseEntity.ok(ApiResponse.ok(jobService.search(criteria, page, size)));
     }
 
     @Operation(summary = "Get a job listing by id")

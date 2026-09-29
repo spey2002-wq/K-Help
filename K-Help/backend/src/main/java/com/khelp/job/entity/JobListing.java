@@ -78,6 +78,22 @@ public class JobListing extends BaseEntity {
     @Builder.Default
     private String salaryCurrency = "KRW";
 
+    /** Unit the salary range is quoted in (hourly wage, monthly salary, ...). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "salary_period", length = 10)
+    private SalaryPeriod salaryPeriod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private JobShift shift;
+
+    @Column(name = "hours_per_week")
+    private Integer hoursPerWeek;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "experience_level", length = 20)
+    private ExperienceLevel experienceLevel;
+
     @Column(name = "contact_email", length = 150)
     private String contactEmail;
 

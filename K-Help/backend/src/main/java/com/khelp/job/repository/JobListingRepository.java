@@ -1,9 +1,13 @@
 package com.khelp.job.repository;
 
+import com.khelp.job.entity.ExperienceLevel;
 import com.khelp.job.entity.JobListing;
+import com.khelp.job.entity.JobShift;
 import com.khelp.job.entity.JobType;
 import com.khelp.job.entity.ListingStatus;
+import com.khelp.job.entity.SalaryPeriod;
 import java.math.BigDecimal;
+import java.time.Instant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,6 +38,12 @@ public interface JobListingRepository extends JpaRepository<JobListing, Long> {
               AND (:visaSponsorship IS NULL OR j.visaSponsorship = :visaSponsorship)
               AND (:koreanRequired IS NULL OR j.koreanRequired = :koreanRequired)
               AND (:minSalary IS NULL OR j.salaryMax IS NULL OR j.salaryMax >= :minSalary)
+              AND (:maxSalary IS NULL OR j.salaryMin IS NULL OR j.salaryMin <= :maxSalary)
+              AND (:salaryPeriod IS NULL OR j.salaryPeriod = :salaryPeriod)
+              AND (:shift IS NULL OR j.shift = :shift)
+              AND (:experienceLevel IS NULL OR j.experienceLevel = :experienceLevel)
+              AND (j.hoursPerWeek IS NULL OR j.hoursPerWeek <= :maxHours)
+              AND j.createdAt >= :postedAfter
             """)
     Page<JobListing> search(
             @Param("query") String query,
@@ -42,6 +52,12 @@ public interface JobListingRepository extends JpaRepository<JobListing, Long> {
             @Param("visaSponsorship") Boolean visaSponsorship,
             @Param("koreanRequired") Boolean koreanRequired,
             @Param("minSalary") BigDecimal minSalary,
+            @Param("maxSalary") BigDecimal maxSalary,
+            @Param("salaryPeriod") SalaryPeriod salaryPeriod,
+            @Param("shift") JobShift shift,
+            @Param("experienceLevel") ExperienceLevel experienceLevel,
+            @Param("maxHours") int maxHours,
+            @Param("postedAfter") Instant postedAfter,
             Pageable pageable);
 
     @Modifying

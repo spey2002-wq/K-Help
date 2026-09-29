@@ -22,13 +22,13 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-slate-900">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-sm text-white">
+        <Link href="/" className="group flex items-center gap-2.5 font-bold text-slate-900">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-base font-bold text-white shadow-soft transition-transform group-hover:scale-105">
             K
           </span>
-          <span className="text-lg">K-Help</span>
+          <span className="text-lg tracking-tight">K-Help</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

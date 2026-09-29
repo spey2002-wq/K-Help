@@ -9,6 +9,7 @@ import com.khelp.job.dto.JobApplicationRequest;
 import com.khelp.job.dto.JobApplicationResponse;
 import com.khelp.job.dto.JobListingRequest;
 import com.khelp.job.dto.JobListingResponse;
+import com.khelp.job.dto.JobSearchCriteria;
 import com.khelp.job.entity.ApplicationStatus;
 import com.khelp.job.entity.JobApplication;
 import com.khelp.job.entity.JobListing;
@@ -18,6 +19,8 @@ import com.khelp.job.repository.JobApplicationRepository;
 import com.khelp.job.repository.JobListingRepository;
 import com.khelp.security.SecurityUtils;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,20 +43,32 @@ public class JobService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<JobListingResponse> search(
-            String query,
-            JobType jobType,
-            String location,
-            Boolean visaSponsorship,
-            Boolean koreanRequired,
-            BigDecimal minSalary,
-            int page,
-            int size) {
+    public PageResponse<JobListingResponse> search(JobSearchCriteria criteria, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
+        // "No limit" values are passed as plain defaults rather than nulls so the
+        // database never has to infer the type of an untyped NULL parameter.
+        int maxHours = criteria.maxHoursPerWeek() != null
+                ? criteria.maxHoursPerWeek() : Integer.MAX_VALUE;
+        Instant postedAfter = criteria.postedWithinDays() != null && criteria.postedWithinDays() > 0
+                ? Instant.now().minus(criteria.postedWithinDays(), ChronoUnit.DAYS)
+                : Instant.EPOCH;
+
         Page<JobListing> jobs = jobListingRepository.search(
-                query, jobType, location, visaSponsorship, koreanRequired, minSalary, pageable);
+                criteria.query(),
+                criteria.jobType(),
+                criteria.location(),
+                criteria.visaSponsorship(),
+                criteria.koreanRequired(),
+                criteria.minSalary(),
+                criteria.maxSalary(),
+                criteria.salaryPeriod(),
+                criteria.shift(),
+                criteria.experienceLevel(),
+                maxHours,
+                postedAfter,
+                pageable);
 
         return PageResponse.from(jobs.map(JobListingResponse::summaryOf));
     }
@@ -90,6 +105,10 @@ public class JobService {
                 .salaryMax(request.salaryMax())
                 .salaryCurrency(StringUtils.hasText(request.salaryCurrency())
                         ? request.salaryCurrency() : "KRW")
+                .salaryPeriod(request.salaryPeriod())
+                .shift(request.shift())
+                .hoursPerWeek(request.hoursPerWeek())
+                .experienceLevel(request.experienceLevel())
                 .contactEmail(request.contactEmail())
                 .deadline(request.deadline())
                 .postedBy(poster)
@@ -122,6 +141,10 @@ public class JobService {
         if (StringUtils.hasText(request.salaryCurrency())) {
             job.setSalaryCurrency(request.salaryCurrency());
         }
+        job.setSalaryPeriod(request.salaryPeriod());
+        job.setShift(request.shift());
+        job.setHoursPerWeek(request.hoursPerWeek());
+        job.setExperienceLevel(request.experienceLevel());
         job.setContactEmail(request.contactEmail());
         job.setDeadline(request.deadline());
 

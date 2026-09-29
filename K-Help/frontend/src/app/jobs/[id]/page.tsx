@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { formatSalaryRange, humanize, timeAgo } from "@/lib/utils";
+import { experienceLabel, shiftLabel } from "@/lib/job-options";
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
@@ -95,9 +96,29 @@ export default function JobDetailPage() {
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-500">Salary</p>
             <p className="mt-1 font-semibold text-slate-900">
-              {formatSalaryRange(job.salaryMin, job.salaryMax)}
+              {formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryPeriod)}
             </p>
           </div>
+          {job.shift && (
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">Shift</p>
+              <p className="mt-1 font-semibold text-slate-900">{shiftLabel(job.shift)}</p>
+            </div>
+          )}
+          {job.hoursPerWeek && (
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">Working hours</p>
+              <p className="mt-1 font-semibold text-slate-900">{job.hoursPerWeek} hours / week</p>
+            </div>
+          )}
+          {job.experienceLevel && (
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">Experience</p>
+              <p className="mt-1 font-semibold text-slate-900">
+                {experienceLabel(job.experienceLevel)}
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-500">Deadline</p>
             <p className="mt-1 font-semibold text-slate-900">

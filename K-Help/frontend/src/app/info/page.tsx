@@ -121,7 +121,7 @@ export default function InfoPage() {
               <Link
                 key={guide.id}
                 href={`/info/${guide.id}`}
-                className="card flex flex-col p-5 transition-shadow hover:shadow-md"
+                className="card card-hover flex flex-col p-5"
               >
                 <Badge tone="brand" className="self-start">
                   {humanize(guide.category)}

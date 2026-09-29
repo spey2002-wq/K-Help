@@ -101,8 +101,10 @@ export default function HousingDetailPage() {
       )}
 
       <article className="card overflow-hidden">
-        <div className="grid h-52 place-items-center bg-gradient-to-br from-brand-100 to-brand-300 text-5xl">
-          🏠
+        <div className="grid h-52 place-items-center bg-brand-gradient">
+          <div className="grid h-20 w-20 place-items-center rounded-2xl bg-white/20 text-4xl font-bold text-white backdrop-blur">
+            {listing.propertyType.charAt(0)}
+          </div>
         </div>
 
         <div className="p-8">

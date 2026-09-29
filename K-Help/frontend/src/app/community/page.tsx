@@ -207,7 +207,7 @@ export default function CommunityPage() {
         <>
           <div className="space-y-3">
             {posts.content.map((post) => (
-              <article key={post.id} className="card p-5">
+              <article key={post.id} className="card card-hover p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap items-center gap-2">

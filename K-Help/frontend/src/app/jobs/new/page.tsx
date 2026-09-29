@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import api, { errorMessage } from "@/lib/api";
-import type { JobType } from "@/types";
+import type { ExperienceLevel, JobShift, JobType, SalaryPeriod } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState } from "@/components/ui/Feedback";
 import { humanize } from "@/lib/utils";
+import { KOREA_LOCATIONS } from "@/lib/locations";
+import { EXPERIENCE_OPTIONS, SALARY_PERIOD_OPTIONS, SHIFT_OPTIONS } from "@/lib/job-options";
 
 const JOB_TYPES: JobType[] = [
   "FULL_TIME",
@@ -28,8 +30,13 @@ export default function NewJobPage() {
     requirements: "",
     jobType: "FULL_TIME" as JobType,
     location: "",
+    area: "",
+    salaryPeriod: "MONTHLY" as SalaryPeriod,
     salaryMin: "",
     salaryMax: "",
+    shift: "" as JobShift | "",
+    hoursPerWeek: "",
+    experienceLevel: "" as ExperienceLevel | "",
     contactEmail: "",
     deadline: "",
     visaSponsorship: false,
@@ -42,9 +49,16 @@ export default function NewJobPage() {
     setForm((previous) => ({ ...previous, [field]: value }));
   }
 
+  const salaryRangeInvalid =
+    form.salaryMin !== "" && form.salaryMax !== "" && Number(form.salaryMin) > Number(form.salaryMax);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    if (salaryRangeInvalid) {
+      setError("Salary minimum cannot be higher than the maximum.");
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -54,9 +68,14 @@ export default function NewJobPage() {
         description: form.description.trim(),
         requirements: form.requirements.trim() || undefined,
         jobType: form.jobType,
-        location: form.location.trim() || undefined,
+        location:
+          [form.location, form.area.trim()].filter(Boolean).join(", ") || undefined,
         salaryMin: form.salaryMin ? Number(form.salaryMin) : undefined,
         salaryMax: form.salaryMax ? Number(form.salaryMax) : undefined,
+        salaryPeriod: form.salaryMin || form.salaryMax ? form.salaryPeriod : undefined,
+        shift: form.shift || undefined,
+        hoursPerWeek: form.hoursPerWeek ? Number(form.hoursPerWeek) : undefined,
+        experienceLevel: form.experienceLevel || undefined,
         contactEmail: form.contactEmail.trim() || undefined,
         deadline: form.deadline || undefined,
         visaSponsorship: form.visaSponsorship,
@@ -110,13 +129,27 @@ export default function NewJobPage() {
               </option>
             ))}
           </Select>
-          <Input
-            label="Location"
+          <Select
+            label="City"
             value={form.location}
             onChange={(event) => update("location", event.target.value)}
-            placeholder="Seoul, Hongdae"
-          />
+          >
+            <option value="">Select a city</option>
+            {KOREA_LOCATIONS.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </Select>
         </div>
+
+        <Input
+          label="Area (optional)"
+          value={form.area}
+          onChange={(event) => update("area", event.target.value)}
+          placeholder="Hongdae, Gangnam, Haeundae..."
+          hint="Shown after the city, e.g. Seoul, Hongdae"
+        />
 
         <Textarea
           label="Description"
@@ -133,10 +166,22 @@ export default function NewJobPage() {
           placeholder="Language level, experience, certifications..."
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Select
+            label="Salary is paid"
+            value={form.salaryPeriod}
+            onChange={(event) => update("salaryPeriod", event.target.value as SalaryPeriod)}
+          >
+            {SALARY_PERIOD_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
           <Input
             label="Salary minimum (KRW)"
             type="number"
+            min={0}
             value={form.salaryMin}
             onChange={(event) => update("salaryMin", event.target.value)}
             placeholder="10000"
@@ -144,10 +189,50 @@ export default function NewJobPage() {
           <Input
             label="Salary maximum (KRW)"
             type="number"
+            min={0}
             value={form.salaryMax}
             onChange={(event) => update("salaryMax", event.target.value)}
             placeholder="12000"
+            error={salaryRangeInvalid ? "Minimum is higher than maximum" : undefined}
           />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Select
+            label="Shift"
+            value={form.shift}
+            onChange={(event) => update("shift", event.target.value as JobShift | "")}
+          >
+            <option value="">Not specified</option>
+            {SHIFT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Input
+            label="Hours per week"
+            type="number"
+            min={1}
+            max={80}
+            value={form.hoursPerWeek}
+            onChange={(event) => update("hoursPerWeek", event.target.value)}
+            placeholder="20"
+          />
+          <Select
+            label="Experience"
+            value={form.experienceLevel}
+            onChange={(event) =>
+              update("experienceLevel", event.target.value as ExperienceLevel | "")
+            }
+          >
+            <option value="">Not specified</option>
+            {EXPERIENCE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

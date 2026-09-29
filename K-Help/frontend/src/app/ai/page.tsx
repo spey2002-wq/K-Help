@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import api, { errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/Button";
@@ -120,6 +121,16 @@ export default function AiAssistantPage() {
       </div>
 
       <div className="card space-y-4 p-6">
+        {!isAuthenticated && (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            The AI assistant requires an account.{" "}
+            <Link href="/login" className="font-medium text-brand-600 hover:underline">
+              Sign in
+            </Link>{" "}
+            to continue.
+          </div>
+        )}
+
         {mode === "translate" && (
           <div className="grid gap-4 sm:grid-cols-2">
             <Select
@@ -207,9 +218,9 @@ export default function AiAssistantPage() {
           <p className="text-xs text-slate-500">
             {isAuthenticated
               ? "Signed in — requests are authenticated."
-              : "You can try the assistant without an account."}
+              : "Sign in to use the AI assistant."}
           </p>
-          <Button onClick={handleRun} loading={loading} disabled={!text.trim()}>
+          <Button onClick={handleRun} loading={loading} disabled={!text.trim() || !isAuthenticated}>
             {mode === "translate" ? "Translate" : mode === "summarize" ? "Summarize" : "Rewrite"}
           </Button>
         </div>

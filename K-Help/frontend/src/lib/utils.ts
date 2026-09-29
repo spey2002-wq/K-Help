@@ -11,11 +11,23 @@ export function formatKrw(value?: number | null): string {
   return `₩${value.toLocaleString("en-US")}`;
 }
 
+const PERIOD_SUFFIX: Record<string, string> = {
+  HOURLY: "/ hour",
+  MONTHLY: "/ month",
+  YEARLY: "/ year",
+};
+
 /** Renders a salary range such as "₩10,000 - ₩12,000 / hour". */
-export function formatSalaryRange(min?: number | null, max?: number | null): string {
+export function formatSalaryRange(
+  min?: number | null,
+  max?: number | null,
+  period?: string | null,
+): string {
   if (min == null && max == null) return "Negotiable";
-  if (min != null && max != null) return `${formatKrw(min)} - ${formatKrw(max)}`;
-  return formatKrw(min ?? max);
+  const amount =
+    min != null && max != null ? `${formatKrw(min)} - ${formatKrw(max)}` : formatKrw(min ?? max);
+  const suffix = period ? PERIOD_SUFFIX[period] : undefined;
+  return suffix ? `${amount} ${suffix}` : amount;
 }
 
 /** Short relative time such as "3h ago", falling back to a date for old items. */

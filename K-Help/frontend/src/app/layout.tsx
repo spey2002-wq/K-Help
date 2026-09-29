@@ -21,11 +21,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen font-sans">
         <AuthProvider>
           <Navbar />
-          <main className="container py-8">{children}</main>
+          <main className="container py-10">{children}</main>
           <footer className="border-t border-slate-200 bg-white">
             <div className="container flex flex-col items-center justify-between gap-2 py-6 text-sm text-slate-500 sm:flex-row">
-              <p>K-Help · Korea Life Platform for Foreign Residents</p>
-              <p>NP Coders · Capstone Project</p>
+              <p className="font-medium text-slate-600">
+                K-Help · Korea Life Platform for Foreign Residents
+              </p>
+              <p className="text-slate-400">NP Coders · Capstone Project</p>
             </div>
           </footer>
         </AuthProvider>

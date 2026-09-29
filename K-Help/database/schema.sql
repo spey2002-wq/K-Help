@@ -170,6 +170,10 @@ CREATE TABLE IF NOT EXISTS job_listings (
     salary_min        NUMERIC(12, 2),
     salary_max        NUMERIC(12, 2),
     salary_currency   VARCHAR(10)    DEFAULT 'KRW',
+    salary_period     VARCHAR(10),
+    shift             VARCHAR(20),
+    hours_per_week    INTEGER,
+    experience_level  VARCHAR(20),
     contact_email     VARCHAR(150),
     deadline          DATE,
     posted_by         BIGINT         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
@@ -182,15 +186,26 @@ CREATE TABLE IF NOT EXISTS job_listings (
     CONSTRAINT chk_jobs_status CHECK (status IN (
         'PENDING', 'APPROVED', 'REJECTED', 'CLOSED')),
     CONSTRAINT chk_jobs_salary_range
-        CHECK (salary_min IS NULL OR salary_max IS NULL OR salary_min <= salary_max)
+        CHECK (salary_min IS NULL OR salary_max IS NULL OR salary_min <= salary_max),
+    CONSTRAINT chk_jobs_salary_period CHECK (
+        salary_period IS NULL OR salary_period IN ('HOURLY', 'MONTHLY', 'YEARLY')),
+    CONSTRAINT chk_jobs_shift CHECK (
+        shift IS NULL OR shift IN ('DAY', 'EVENING', 'NIGHT', 'ROTATING', 'FLEXIBLE')),
+    CONSTRAINT chk_jobs_hours_per_week CHECK (
+        hours_per_week IS NULL OR hours_per_week BETWEEN 1 AND 80),
+    CONSTRAINT chk_jobs_experience CHECK (
+        experience_level IS NULL
+        OR experience_level IN ('NO_EXPERIENCE', 'JUNIOR', 'MID', 'SENIOR'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_jobs_status   ON job_listings (status);
 CREATE INDEX IF NOT EXISTS idx_jobs_location ON job_listings (location);
 CREATE INDEX IF NOT EXISTS idx_jobs_type     ON job_listings (job_type);
+CREATE INDEX IF NOT EXISTS idx_jobs_shift    ON job_listings (shift);
 
 COMMENT ON TABLE  job_listings        IS 'Employer job postings. New listings start PENDING until an admin approves them.';
-COMMENT ON COLUMN job_listings.salary_min IS 'For PART_TIME/TEMPORARY this is the hourly wage; for FULL_TIME the monthly salary.';
+COMMENT ON COLUMN job_listings.salary_min IS 'Lower bound of the pay range, in the unit given by salary_period.';
+COMMENT ON COLUMN job_listings.salary_period IS 'Unit of salary_min/salary_max: HOURLY, MONTHLY or YEARLY.';
 
 -- ----------------------------------------------------- job_applications ----
 CREATE TABLE IF NOT EXISTS job_applications (

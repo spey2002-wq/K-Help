@@ -194,9 +194,11 @@ export default function HousingPage() {
         <>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {listings.content.map((listing) => (
-              <article key={listing.id} className="card flex flex-col overflow-hidden">
-                <div className="grid h-36 place-items-center bg-gradient-to-br from-brand-100 to-brand-200 text-3xl">
-                  🏠
+              <article key={listing.id} className="card card-hover flex flex-col overflow-hidden">
+                <div className="grid h-36 place-items-center bg-brand-gradient">
+                  <div className="grid h-14 w-14 place-items-center rounded-xl bg-white/20 text-2xl font-bold text-white backdrop-blur">
+                    {listing.propertyType.charAt(0)}
+                  </div>
                 </div>
 
                 <div className="flex flex-1 flex-col p-5">
