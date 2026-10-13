@@ -3,7 +3,9 @@ spring:
     name: khelp-backend
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/khelp}
+    # Full JDBC URL wins; otherwise it is assembled from DB_HOST/DB_PORT/DB_NAME
+    # (used by cloud platforms such as Render that expose host and port separately).
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:khelp}}
     username: ${SPRING_DATASOURCE_USERNAME:khelp}
     password: ${SPRING_DATASOURCE_PASSWORD:khelp}
     driver-class-name: org.postgresql.Driver
@@ -46,7 +48,8 @@ spring:
       write-dates-as-timestamps: false
 
 server:
-  port: 8080
+  # Cloud platforms inject PORT; locally and in Docker Compose it stays 8080.
+  port: ${PORT:8080}
   error:
     include-message: always
   compression:
