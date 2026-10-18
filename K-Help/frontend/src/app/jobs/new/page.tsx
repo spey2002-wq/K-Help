@@ -3,13 +3,30 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import api, { errorMessage } from "@/lib/api";
-import type { ExperienceLevel, JobShift, JobType, SalaryPeriod } from "@/types";
+import type {
+  ExperienceLevel,
+  JobCategory,
+  JobShift,
+  JobType,
+  SalaryPeriod,
+  WorkDay,
+  WorkPeriod,
+} from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState } from "@/components/ui/Feedback";
 import { humanize } from "@/lib/utils";
 import { KOREA_LOCATIONS } from "@/lib/locations";
-import { EXPERIENCE_OPTIONS, SALARY_PERIOD_OPTIONS, SHIFT_OPTIONS } from "@/lib/job-options";
+import { Chip } from "@/components/jobs/Chip";
+import {
+  CATEGORY_OPTIONS,
+  DAY_OPTIONS,
+  EXPERIENCE_OPTIONS,
+  SALARY_PERIOD_OPTIONS,
+  SHIFT_OPTIONS,
+  WORK_PERIOD_OPTIONS,
+} from "@/lib/job-options";
+import { toggleDay } from "@/lib/job-filters";
 
 const JOB_TYPES: JobType[] = [
   "FULL_TIME",
@@ -37,6 +54,14 @@ export default function NewJobPage() {
     shift: "" as JobShift | "",
     hoursPerWeek: "",
     experienceLevel: "" as ExperienceLevel | "",
+    category: "" as JobCategory | "",
+    workDays: [] as WorkDay[],
+    workPeriod: "" as WorkPeriod | "",
+    mealsProvided: false,
+    housingProvided: false,
+    insuranceProvided: false,
+    transportProvided: false,
+    urgent: false,
     contactEmail: "",
     deadline: "",
     visaSponsorship: false,
@@ -76,6 +101,14 @@ export default function NewJobPage() {
         shift: form.shift || undefined,
         hoursPerWeek: form.hoursPerWeek ? Number(form.hoursPerWeek) : undefined,
         experienceLevel: form.experienceLevel || undefined,
+        category: form.category || undefined,
+        workDays: form.workDays.length > 0 ? form.workDays : undefined,
+        workPeriod: form.workPeriod || undefined,
+        mealsProvided: form.mealsProvided,
+        housingProvided: form.housingProvided,
+        insuranceProvided: form.insuranceProvided,
+        transportProvided: form.transportProvided,
+        urgent: form.urgent,
         contactEmail: form.contactEmail.trim() || undefined,
         deadline: form.deadline || undefined,
         visaSponsorship: form.visaSponsorship,
@@ -236,6 +269,49 @@ export default function NewJobPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          <Select
+            label="Category"
+            value={form.category}
+            onChange={(event) => update("category", event.target.value as JobCategory | "")}
+          >
+            <option value="">Not specified</option>
+            {CATEGORY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label="How long is the job?"
+            value={form.workPeriod}
+            onChange={(event) => update("workPeriod", event.target.value as WorkPeriod | "")}
+          >
+            <option value="">Not specified</option>
+            {WORK_PERIOD_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <p className="label">Work days</p>
+          <div className="flex flex-wrap gap-2">
+            {DAY_OPTIONS.map((day) => (
+              <Chip
+                key={day.value}
+                selected={form.workDays.includes(day.value)}
+                onClick={() => update("workDays", toggleDay(form.workDays, day.value))}
+              >
+                {day.label}
+              </Chip>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-slate-500">Leave empty if the days are flexible.</p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="Contact email"
             type="email"
@@ -270,6 +346,25 @@ export default function NewJobPage() {
             />
             Korean language required
           </label>
+          {(
+            [
+              ["mealsProvided", "Meals provided"],
+              ["housingProvided", "Housing / dormitory"],
+              ["insuranceProvided", "4 major insurances"],
+              ["transportProvided", "Transport pay"],
+              ["urgent", "Hiring now (urgent)"],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-slate-300"
+                checked={form[key]}
+                onChange={(event) => update(key, event.target.checked)}
+              />
+              {label}
+            </label>
+          ))}
         </div>
 
         <div className="flex justify-end gap-3 pt-2">

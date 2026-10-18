@@ -5,6 +5,8 @@ package com.khelp.info.entity;
  */
 public enum GuideCategory {
     VISA_IMMIGRATION,
+    /** Country-specific "how to come to Korea" visa guides (see Guide.country). */
+    VISA_BY_COUNTRY,
     HEALTHCARE,
     BANKING,
     HOUSING,

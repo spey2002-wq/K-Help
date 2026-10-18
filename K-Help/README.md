@@ -72,6 +72,28 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws
 ```
 
+## Deployment (free cloud)
+
+The backend, PostgreSQL and Redis run on **Render**; the frontend runs on **Vercel**.
+
+1. **Backend + database + Redis (Render).** In Render choose *New + > Blueprint*, pick this
+   GitHub repository and apply `render.yaml` (it sits at the repository root). When asked,
+   set `AI_API_KEY` (your OpenRouter key) and `APP_CORS_ALLOWED_ORIGINS` (use `*.vercel.app`
+   for now, then your real Vercel URL). Wait for the service to show *Live*, then open
+   `https://<your-service>.onrender.com/actuator/health`; it should say `UP`.
+2. **Frontend (Vercel).** Import the same repository, set **Root Directory** to
+   `K-Help/frontend`, and add two environment variables **before the first build**:
+   - `NEXT_PUBLIC_API_URL` = `https://<your-service>.onrender.com`
+   - `NEXT_PUBLIC_WS_URL` = `wss://<your-service>.onrender.com/ws`
+3. **Connect them.** Copy the Vercel URL into `APP_CORS_ALLOWED_ORIGINS` on Render and let it
+   redeploy.
+
+Notes: `NEXT_PUBLIC_*` values are baked in at build time, so redeploy Vercel after changing
+them. Free Render services sleep after about 15 minutes of inactivity (the first request is
+slow), and the free database expires after 30 days. Database changes ship as Flyway
+migrations in `backend/src/main/resources/db/migration` and run automatically on start.
+Never commit `.env` files or API keys.
+
 ## Baseline API Surface
 
 | Module    | Base Path        | Highlights                                        |

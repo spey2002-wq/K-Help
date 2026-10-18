@@ -9,9 +9,12 @@ import com.khelp.job.dto.JobListingRequest;
 import com.khelp.job.dto.JobListingResponse;
 import com.khelp.job.dto.JobSearchCriteria;
 import com.khelp.job.entity.ExperienceLevel;
+import com.khelp.job.entity.JobCategory;
 import com.khelp.job.entity.JobShift;
+import com.khelp.job.entity.JobSort;
 import com.khelp.job.entity.JobType;
 import com.khelp.job.entity.SalaryPeriod;
+import com.khelp.job.entity.WorkPeriod;
 import com.khelp.job.service.JobService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,7 +49,7 @@ public class JobController {
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<JobListingResponse>>> search(
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) JobType jobType,
+            @RequestParam(required = false) List<JobType> jobType,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) Boolean visaSponsorship,
             @RequestParam(required = false) Boolean koreanRequired,
@@ -57,13 +60,32 @@ public class JobController {
             @RequestParam(required = false) Integer maxHoursPerWeek,
             @RequestParam(required = false) ExperienceLevel experienceLevel,
             @RequestParam(required = false) Integer postedWithinDays,
+            @RequestParam(required = false) List<JobCategory> category,
+            @RequestParam(required = false) List<WorkPeriod> workPeriod,
+            @RequestParam(required = false) List<String> availableDays,
+            @RequestParam(required = false) Boolean mealsProvided,
+            @RequestParam(required = false) Boolean housingProvided,
+            @RequestParam(required = false) Boolean insuranceProvided,
+            @RequestParam(required = false) Boolean transportProvided,
+            @RequestParam(required = false) Boolean urgent,
+            @RequestParam(required = false) JobSort sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         JobSearchCriteria criteria = new JobSearchCriteria(
                 q, jobType, location, visaSponsorship, koreanRequired,
                 minSalary, maxSalary, salaryPeriod, shift,
-                maxHoursPerWeek, experienceLevel, postedWithinDays);
+                maxHoursPerWeek, experienceLevel, postedWithinDays,
+                category, workPeriod, availableDays,
+                mealsProvided, housingProvided, insuranceProvided, transportProvided,
+                urgent, sort);
         return ResponseEntity.ok(ApiResponse.ok(jobService.search(criteria, page, size)));
+    }
+
+    @Operation(summary = "Search-box suggestions: matching job titles and company names")
+    @GetMapping("/suggestions")
+    public ResponseEntity<ApiResponse<List<String>>> suggestions(
+            @RequestParam(name = "q", defaultValue = "") String text) {
+        return ResponseEntity.ok(ApiResponse.ok(jobService.suggestions(text)));
     }
 
     @Operation(summary = "Get a job listing by id")

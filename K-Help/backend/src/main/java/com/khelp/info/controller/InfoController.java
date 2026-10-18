@@ -9,6 +9,7 @@ import com.khelp.info.service.GuideService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,16 +35,23 @@ public class InfoController {
 
     private final GuideService guideService;
 
-    @Operation(summary = "Search guides by category, language and keyword")
+    @Operation(summary = "Search guides by category, country, language and keyword")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<GuideResponse>>> list(
             @RequestParam(required = false) GuideCategory category,
             @RequestParam(required = false) String language,
+            @RequestParam(required = false) String country,
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(
-                ApiResponse.ok(guideService.search(category, language, q, page, size)));
+                ApiResponse.ok(guideService.search(category, language, country, q, page, size)));
+    }
+
+    @Operation(summary = "List countries that have visa/country guides")
+    @GetMapping("/countries")
+    public ResponseEntity<ApiResponse<List<String>>> countries() {
+        return ResponseEntity.ok(ApiResponse.ok(guideService.countries()));
     }
 
     @Operation(summary = "Get a full guide article")

@@ -140,8 +140,9 @@ public class AuthService {
         if (StringUtils.hasText(request.profileImageUrl())) {
             user.setProfileImageUrl(request.profileImageUrl());
         }
-        if (StringUtils.hasText(request.bio())) {
-            user.setBio(request.bio());
+        if (request.bio() != null) {
+            // An empty string clears the bio; null leaves it unchanged.
+            user.setBio(request.bio().trim());
         }
 
         return UserResponse.from(userRepository.save(user));

@@ -41,6 +41,10 @@ public class Guide extends BaseEntity {
     @Column(nullable = false, length = 30)
     private GuideCategory category;
 
+    /** Country this guide is written for (e.g. "Nepal"); null for guides that apply to everyone. */
+    @Column(length = 60)
+    private String country;
+
     @Column(name = "language_code", nullable = false, length = 10)
     @Builder.Default
     private String languageCode = "en";

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
@@ -64,9 +65,23 @@ export function Navbar() {
         <div className="hidden items-center gap-2 md:flex">
           {loading ? null : isAuthenticated ? (
             <>
-              <span className="max-w-[140px] truncate text-sm text-slate-600">
-                {user?.fullName || user?.username}
-              </span>
+              {user && (
+                <Link
+                  href="/profile"
+                  title="My profile"
+                  className={cn(
+                    "flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-colors",
+                    pathname.startsWith("/profile")
+                      ? "bg-brand-50 text-brand-700"
+                      : "text-slate-700 hover:bg-slate-100",
+                  )}
+                >
+                  <Avatar user={user} className="h-8 w-8 text-xs ring-2 ring-white" />
+                  <span className="max-w-[140px] truncate text-sm font-medium">
+                    {user.fullName || user.username}
+                  </span>
+                </Link>
+              )}
               <Button variant="outline" size="sm" onClick={logout}>
                 Sign out
               </Button>
@@ -101,6 +116,21 @@ export function Navbar() {
       {open && (
         <div className="border-t border-slate-200 bg-white md:hidden">
           <nav className="container flex flex-col py-2">
+            {isAuthenticated && user && (
+              <Link
+                href="/profile"
+                onClick={() => setOpen(false)}
+                className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100"
+              >
+                <Avatar user={user} className="h-9 w-9 text-sm" />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-slate-900">
+                    {user.fullName || user.username}
+                  </span>
+                  <span className="block text-xs text-slate-500">View my profile</span>
+                </span>
+              </Link>
+            )}
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}

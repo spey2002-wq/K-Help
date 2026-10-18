@@ -1,0 +1,4 @@
+
+# Local env notes (may contain secrets)
+.env.txt
+*.env.txt

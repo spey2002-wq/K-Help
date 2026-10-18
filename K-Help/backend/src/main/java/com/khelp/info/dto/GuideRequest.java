@@ -20,6 +20,9 @@ public record GuideRequest(
         @NotNull(message = "Category is required")
         GuideCategory category,
 
+        @Size(max = 60)
+        String country,
+
         @Size(max = 10)
         String languageCode,
 

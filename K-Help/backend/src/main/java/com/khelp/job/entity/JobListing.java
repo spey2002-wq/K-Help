@@ -94,6 +94,39 @@ public class JobListing extends BaseEntity {
     @Column(name = "experience_level", length = 20)
     private ExperienceLevel experienceLevel;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private JobCategory category;
+
+    /** Comma separated day codes (MON,TUE,...). Null means "days are flexible". */
+    @Column(name = "work_days", length = 40)
+    private String workDays;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "work_period", length = 20)
+    private WorkPeriod workPeriod;
+
+    @Column(name = "meals_provided", nullable = false)
+    @Builder.Default
+    private boolean mealsProvided = false;
+
+    @Column(name = "housing_provided", nullable = false)
+    @Builder.Default
+    private boolean housingProvided = false;
+
+    @Column(name = "insurance_provided", nullable = false)
+    @Builder.Default
+    private boolean insuranceProvided = false;
+
+    @Column(name = "transport_provided", nullable = false)
+    @Builder.Default
+    private boolean transportProvided = false;
+
+    /** Employer needs someone quickly ("hiring now"). */
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean urgent = false;
+
     @Column(name = "contact_email", length = 150)
     private String contactEmail;
 

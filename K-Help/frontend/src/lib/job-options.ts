@@ -1,4 +1,12 @@
-import type { ExperienceLevel, JobShift, SalaryPeriod } from "@/types";
+import type {
+  ExperienceLevel,
+  JobCategory,
+  JobShift,
+  JobSortOption,
+  SalaryPeriod,
+  WorkDay,
+  WorkPeriod,
+} from "@/types";
 
 interface Option<T extends string> {
   value: T;
@@ -64,3 +72,89 @@ export function shiftLabel(shift?: JobShift | null): string {
 export function experienceLabel(level?: ExperienceLevel | null): string {
   return level ? EXPERIENCE_SHORT[level] : "";
 }
+
+export const CATEGORY_OPTIONS: Option<JobCategory>[] = [
+  { value: "RESTAURANT", label: "Restaurant" },
+  { value: "CAFE", label: "Cafe" },
+  { value: "CONVENIENCE_STORE", label: "Convenience store" },
+  { value: "RETAIL", label: "Retail & sales" },
+  { value: "DELIVERY_DRIVING", label: "Delivery & driving" },
+  { value: "EDUCATION", label: "Teaching & tutoring" },
+  { value: "OFFICE_ADMIN", label: "Office & admin" },
+  { value: "IT_DESIGN", label: "IT & design" },
+  { value: "WAREHOUSE_FACTORY", label: "Warehouse & factory" },
+  { value: "CONSTRUCTION", label: "Construction" },
+  { value: "BEAUTY_FITNESS", label: "Beauty & fitness" },
+  { value: "CLEANING", label: "Cleaning" },
+  { value: "HOTEL_TOURISM", label: "Hotel & tourism" },
+  { value: "HEALTHCARE", label: "Healthcare & care" },
+  { value: "TRANSLATION", label: "Translation" },
+  { value: "EVENT_PROMOTION", label: "Events & promotion" },
+  { value: "OTHER", label: "Other" },
+];
+
+export const WORK_PERIOD_OPTIONS: Option<WorkPeriod>[] = [
+  { value: "ONE_DAY", label: "One day" },
+  { value: "UNDER_1_MONTH", label: "Under 1 month" },
+  { value: "ONE_TO_3_MONTHS", label: "1-3 months" },
+  { value: "THREE_TO_6_MONTHS", label: "3-6 months" },
+  { value: "OVER_6_MONTHS", label: "6 months +" },
+];
+
+export const DAY_OPTIONS: Option<WorkDay>[] = [
+  { value: "MON", label: "Mon" },
+  { value: "TUE", label: "Tue" },
+  { value: "WED", label: "Wed" },
+  { value: "THU", label: "Thu" },
+  { value: "FRI", label: "Fri" },
+  { value: "SAT", label: "Sat" },
+  { value: "SUN", label: "Sun" },
+];
+
+export const WEEKDAYS: WorkDay[] = ["MON", "TUE", "WED", "THU", "FRI"];
+export const WEEKEND: WorkDay[] = ["SAT", "SUN"];
+
+export const SORT_OPTIONS: Option<JobSortOption>[] = [
+  { value: "NEWEST", label: "Newest first" },
+  { value: "MOST_VIEWED", label: "Most viewed" },
+  { value: "DEADLINE_SOON", label: "Deadline soon" },
+  { value: "PAY_HIGH", label: "Highest pay" },
+  { value: "PAY_LOW", label: "Lowest pay" },
+];
+
+/** Tap-to-search ideas shown under the search box. */
+export const POPULAR_SEARCHES: string[] = [
+  "Cafe",
+  "English teacher",
+  "Weekend",
+  "Night shift",
+  "Delivery",
+  "Hongdae",
+  "Interpreter",
+  "Hotel",
+];
+
+export function categoryLabel(category?: JobCategory | null): string {
+  return CATEGORY_OPTIONS.find((option) => option.value === category)?.label ?? "";
+}
+
+export function workPeriodLabel(period?: WorkPeriod | null): string {
+  return WORK_PERIOD_OPTIONS.find((option) => option.value === period)?.label ?? "";
+}
+
+/** "Mon - Fri", "Sat, Sun" or "" when the days are flexible. */
+export function formatWorkDays(days?: WorkDay[] | null): string {
+  if (!days || days.length === 0) return "";
+  const order = DAY_OPTIONS.map((option) => option.value);
+  const sorted = [...days].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  const label = (day: WorkDay) => DAY_OPTIONS.find((option) => option.value === day)?.label ?? day;
+
+  const first = order.indexOf(sorted[0]);
+  const isRun = sorted.every((day, index) => order.indexOf(day) === first + index);
+  if (sorted.length >= 3 && isRun) {
+    return `${label(sorted[0])} - ${label(sorted[sorted.length - 1])}`;
+  }
+  return sorted.map(label).join(", ");
+}
+/** National minimum hourly wage for 2026, in KRW. */
+export const MIN_HOURLY_WAGE_KRW = 10320;

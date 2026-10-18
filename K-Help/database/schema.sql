@@ -70,6 +70,51 @@ COMMENT ON COLUMN users.password_hash IS 'BCrypt hash produced by Spring Securit
 COMMENT ON COLUMN users.visa_type     IS 'Korean visa class, e.g. D-2 (student), E-7 (skilled worker), F-5 (permanent).';
 COMMENT ON COLUMN users.suspended     IS 'Set by admin moderation; suspended users cannot log in.';
 
+-- ----------------------------------------------- profile: skills/experience ----
+CREATE TABLE IF NOT EXISTS user_skills (
+    id         BIGSERIAL    PRIMARY KEY,
+    user_id    BIGINT       NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    name       VARCHAR(40)  NOT NULL,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    CONSTRAINT uk_user_skills UNIQUE (user_id, name)
+);
+CREATE INDEX IF NOT EXISTS idx_user_skills_user ON user_skills (user_id);
+
+CREATE TABLE IF NOT EXISTS user_experiences (
+    id           BIGSERIAL     PRIMARY KEY,
+    user_id      BIGINT        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    kind         VARCHAR(20)   NOT NULL DEFAULT 'WORK',
+    title        VARCHAR(120)  NOT NULL,
+    organization VARCHAR(120),
+    location     VARCHAR(120),
+    start_date   DATE,
+    end_date     DATE,
+    is_current   BOOLEAN       NOT NULL DEFAULT FALSE,
+    description  VARCHAR(1000),
+    created_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_user_experiences_kind CHECK (kind IN ('WORK', 'EDUCATION', 'OTHER')),
+    CONSTRAINT chk_user_experiences_dates CHECK (
+        end_date IS NULL OR start_date IS NULL OR end_date >= start_date)
+);
+CREATE INDEX IF NOT EXISTS idx_user_experiences_user ON user_experiences (user_id);
+
+-- Photos are stored as BYTEA so they survive redeployments on ephemeral-disk hosts.
+CREATE TABLE IF NOT EXISTS user_photos (
+    id           BIGSERIAL    PRIMARY KEY,
+    user_id      BIGINT       NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    kind         VARCHAR(10)  NOT NULL,
+    content_type VARCHAR(50)  NOT NULL,
+    size_bytes   INTEGER      NOT NULL,
+    caption      VARCHAR(200),
+    data         BYTEA        NOT NULL,
+    created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_user_photos_kind CHECK (kind IN ('AVATAR', 'GALLERY'))
+);
+CREATE INDEX IF NOT EXISTS idx_user_photos_user_kind ON user_photos (user_id, kind);
+
 -- ============================================================================
 -- 2. COMMUNITY
 -- ============================================================================
@@ -137,6 +182,7 @@ CREATE TABLE IF NOT EXISTS guides (
     summary       VARCHAR(500) NOT NULL,
     content       TEXT         NOT NULL,
     category      VARCHAR(30)  NOT NULL,
+    country       VARCHAR(60),
     language_code VARCHAR(10)  NOT NULL DEFAULT 'en',
     source_url    VARCHAR(500),
     published     BOOLEAN      NOT NULL DEFAULT TRUE,
@@ -144,11 +190,12 @@ CREATE TABLE IF NOT EXISTS guides (
     created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     CONSTRAINT chk_guides_category CHECK (category IN (
-        'VISA_IMMIGRATION', 'HEALTHCARE', 'BANKING', 'HOUSING', 'EMPLOYMENT',
-        'EDUCATION', 'EMERGENCY', 'TRANSPORTATION', 'DAILY_LIFE'))
+        'VISA_IMMIGRATION', 'VISA_BY_COUNTRY', 'HEALTHCARE', 'BANKING', 'HOUSING',
+        'EMPLOYMENT', 'EDUCATION', 'EMERGENCY', 'TRANSPORTATION', 'DAILY_LIFE'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_guides_category ON guides (category);
+CREATE INDEX IF NOT EXISTS idx_guides_country ON guides (country);
 
 COMMENT ON TABLE guides IS 'Curated Korea living guides (visa, banking, healthcare, housing...). Served with Redis caching.';
 
@@ -174,6 +221,14 @@ CREATE TABLE IF NOT EXISTS job_listings (
     shift             VARCHAR(20),
     hours_per_week    INTEGER,
     experience_level  VARCHAR(20),
+    category          VARCHAR(30),
+    work_days         VARCHAR(40),
+    work_period       VARCHAR(20),
+    meals_provided    BOOLEAN        NOT NULL DEFAULT FALSE,
+    housing_provided  BOOLEAN        NOT NULL DEFAULT FALSE,
+    insurance_provided BOOLEAN       NOT NULL DEFAULT FALSE,
+    transport_provided BOOLEAN       NOT NULL DEFAULT FALSE,
+    urgent            BOOLEAN        NOT NULL DEFAULT FALSE,
     contact_email     VARCHAR(150),
     deadline          DATE,
     posted_by         BIGINT         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
@@ -195,13 +250,26 @@ CREATE TABLE IF NOT EXISTS job_listings (
         hours_per_week IS NULL OR hours_per_week BETWEEN 1 AND 80),
     CONSTRAINT chk_jobs_experience CHECK (
         experience_level IS NULL
-        OR experience_level IN ('NO_EXPERIENCE', 'JUNIOR', 'MID', 'SENIOR'))
+        OR experience_level IN ('NO_EXPERIENCE', 'JUNIOR', 'MID', 'SENIOR')),
+    CONSTRAINT chk_jobs_category CHECK (
+        category IS NULL OR category IN (
+            'RESTAURANT', 'CAFE', 'CONVENIENCE_STORE', 'RETAIL', 'DELIVERY_DRIVING',
+            'EDUCATION', 'OFFICE_ADMIN', 'IT_DESIGN', 'WAREHOUSE_FACTORY', 'CONSTRUCTION',
+            'BEAUTY_FITNESS', 'CLEANING', 'HOTEL_TOURISM', 'HEALTHCARE', 'TRANSLATION',
+            'EVENT_PROMOTION', 'OTHER')),
+    CONSTRAINT chk_jobs_work_period CHECK (
+        work_period IS NULL OR work_period IN (
+            'ONE_DAY', 'UNDER_1_MONTH', 'ONE_TO_3_MONTHS', 'THREE_TO_6_MONTHS', 'OVER_6_MONTHS')),
+    CONSTRAINT chk_jobs_work_days CHECK (
+        work_days IS NULL OR work_days ~
+        '^(MON|TUE|WED|THU|FRI|SAT|SUN)(,(MON|TUE|WED|THU|FRI|SAT|SUN))*$')
 );
 
 CREATE INDEX IF NOT EXISTS idx_jobs_status   ON job_listings (status);
 CREATE INDEX IF NOT EXISTS idx_jobs_location ON job_listings (location);
 CREATE INDEX IF NOT EXISTS idx_jobs_type     ON job_listings (job_type);
 CREATE INDEX IF NOT EXISTS idx_jobs_shift    ON job_listings (shift);
+CREATE INDEX IF NOT EXISTS idx_jobs_category ON job_listings (category);
 
 COMMENT ON TABLE  job_listings        IS 'Employer job postings. New listings start PENDING until an admin approves them.';
 COMMENT ON COLUMN job_listings.salary_min IS 'Lower bound of the pay range, in the unit given by salary_period.';
@@ -391,7 +459,8 @@ BEGIN
     FOREACH tbl IN ARRAY ARRAY[
         'users', 'posts', 'comments', 'post_likes', 'guides',
         'job_listings', 'job_applications', 'housing_listings', 'housing_inquiries',
-        'conversations', 'chat_messages', 'reports'
+        'conversations', 'chat_messages', 'reports',
+        'user_skills', 'user_experiences', 'user_photos'
     ]
     LOOP
         IF NOT EXISTS (

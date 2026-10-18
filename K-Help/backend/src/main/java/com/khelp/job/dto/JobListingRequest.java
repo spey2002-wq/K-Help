@@ -1,9 +1,11 @@
 package com.khelp.job.dto;
 
 import com.khelp.job.entity.ExperienceLevel;
+import com.khelp.job.entity.JobCategory;
 import com.khelp.job.entity.JobShift;
 import com.khelp.job.entity.JobType;
 import com.khelp.job.entity.SalaryPeriod;
+import com.khelp.job.entity.WorkPeriod;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public record JobListingRequest(
         @NotBlank(message = "Title is required")
@@ -52,6 +55,23 @@ public record JobListingRequest(
         Integer hoursPerWeek,
 
         ExperienceLevel experienceLevel,
+
+        JobCategory category,
+
+        @Size(max = 7, message = "At most 7 work days")
+        List<String> workDays,
+
+        WorkPeriod workPeriod,
+
+        Boolean mealsProvided,
+
+        Boolean housingProvided,
+
+        Boolean insuranceProvided,
+
+        Boolean transportProvided,
+
+        Boolean urgent,
 
         @Size(max = 150)
         String contactEmail,

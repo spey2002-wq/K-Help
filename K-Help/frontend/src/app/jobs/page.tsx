@@ -1,83 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
-import type { JobListing, JobType, PageResponse } from "@/types";
+import type { JobListing, JobSortOption, PageResponse } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { Pagination } from "@/components/ui/Pagination";
+import { Chip } from "@/components/jobs/Chip";
+import { JobFilterPanel } from "@/components/jobs/JobFilterPanel";
+import { JobSearchBar } from "@/components/jobs/JobSearchBar";
 import { formatSalaryRange, humanize, timeAgo } from "@/lib/utils";
-import { KOREA_LOCATIONS } from "@/lib/locations";
 import {
-  EXPERIENCE_OPTIONS,
-  MAX_HOURS_OPTIONS,
-  POSTED_WITHIN_OPTIONS,
-  SALARY_PERIOD_OPTIONS,
-  SHIFT_OPTIONS,
+  CATEGORY_OPTIONS,
+  SORT_OPTIONS,
+  WEEKEND,
+  categoryLabel,
   experienceLabel,
+  formatWorkDays,
   shiftLabel,
+  workPeriodLabel,
 } from "@/lib/job-options";
+import {
+  EMPTY_FILTERS,
+  activeFilterChips,
+  countPanelFilters,
+  hasAnyFilter,
+  salaryRangeInvalid,
+  toQueryParams,
+  toggleItem,
+  type JobFilters,
+} from "@/lib/job-filters";
 
-const JOB_TYPES: JobType[] = [
-  "FULL_TIME",
-  "PART_TIME",
-  "CONTRACT",
-  "INTERNSHIP",
-  "TEMPORARY",
-  "FREELANCE",
-];
+const SHORT_TERM = ["ONE_DAY", "UNDER_1_MONTH"] as const;
 
-/** Empty string always means "any" for select and number inputs. */
-interface JobFilters {
-  q: string;
-  jobType: string;
-  location: string;
-  salaryPeriod: string;
-  minSalary: string;
-  maxSalary: string;
-  shift: string;
-  maxHoursPerWeek: string;
-  experienceLevel: string;
-  postedWithinDays: string;
-  /** "" = any, "true" = Korean required, "false" = no Korean needed. */
-  koreanRequired: "" | "true" | "false";
-  visaSponsorship: boolean;
-}
-
-const EMPTY_FILTERS: JobFilters = {
-  q: "",
-  jobType: "",
-  location: "",
-  salaryPeriod: "",
-  minSalary: "",
-  maxSalary: "",
-  shift: "",
-  maxHoursPerWeek: "",
-  experienceLevel: "",
-  postedWithinDays: "",
-  koreanRequired: "",
-  visaSponsorship: false,
-};
-
-/** Filters that live inside the collapsible "More filters" panel. */
-const ADVANCED_KEYS: (keyof JobFilters)[] = [
-  "salaryPeriod",
-  "minSalary",
-  "maxSalary",
-  "shift",
-  "maxHoursPerWeek",
-  "experienceLevel",
-  "postedWithinDays",
-  "koreanRequired",
-  "visaSponsorship",
-];
-
-function countAdvanced(filters: JobFilters): number {
-  return ADVANCED_KEYS.filter((key) => filters[key] !== EMPTY_FILTERS[key]).length;
+function sameSet(a: string[], b: readonly string[]): boolean {
+  return a.length === b.length && b.every((item) => a.includes(item));
 }
 
 export default function JobsPage() {
@@ -85,40 +45,19 @@ export default function JobsPage() {
 
   const [jobs, setJobs] = useState<PageResponse<JobListing> | null>(null);
   const [page, setPage] = useState(0);
+  /** What the controls show right now. */
   const [filters, setFilters] = useState<JobFilters>(EMPTY_FILTERS);
+  /** What the last search actually used. */
   const [applied, setApplied] = useState<JobFilters>(EMPTY_FILTERS);
-  const [showMore, setShowMore] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const salaryRangeInvalid =
-    filters.minSalary !== "" &&
-    filters.maxSalary !== "" &&
-    Number(filters.minSalary) > Number(filters.maxSalary);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      setJobs(
-        await api.jobs.list({
-          page,
-          size: 10,
-          q: applied.q || undefined,
-          jobType: applied.jobType || undefined,
-          location: applied.location || undefined,
-          salaryPeriod: applied.salaryPeriod || undefined,
-          minSalary: applied.minSalary ? Number(applied.minSalary) : undefined,
-          maxSalary: applied.maxSalary ? Number(applied.maxSalary) : undefined,
-          shift: applied.shift || undefined,
-          maxHoursPerWeek: applied.maxHoursPerWeek ? Number(applied.maxHoursPerWeek) : undefined,
-          experienceLevel: applied.experienceLevel || undefined,
-          postedWithinDays: applied.postedWithinDays ? Number(applied.postedWithinDays) : undefined,
-          visaSponsorship: applied.visaSponsorship || undefined,
-          koreanRequired:
-            applied.koreanRequired === "" ? undefined : applied.koreanRequired === "true",
-        }),
-      );
+      setJobs(await api.jobs.list({ ...toQueryParams(applied), page, size: 10 }));
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -130,29 +69,27 @@ export default function JobsPage() {
     void load();
   }, [load]);
 
-  function set<K extends keyof JobFilters>(key: K, value: JobFilters[K]) {
-    setFilters((previous) => ({ ...previous, [key]: value }));
-  }
-
-  function applyFilters() {
-    if (salaryRangeInvalid) return;
-    setPage(0);
-    setApplied(filters);
-  }
-
-  function clearFilters() {
-    setFilters(EMPTY_FILTERS);
-    setApplied(EMPTY_FILTERS);
+  /** Shows the new filters and searches with them straight away. */
+  function commit(next: JobFilters) {
+    if (salaryRangeInvalid(next)) return;
+    setFilters(next);
+    setApplied(next);
     setPage(0);
   }
 
-  function applyOnEnter(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") applyFilters();
+  function clearAll() {
+    commit({ ...EMPTY_FILTERS, sort: applied.sort });
   }
 
-  const activeAdvanced = countAdvanced(applied);
-  const hasAnyFilter =
-    activeAdvanced > 0 || applied.q !== "" || applied.jobType !== "" || applied.location !== "";
+  function patch(partial: Partial<JobFilters>) {
+    commit({ ...filters, ...partial });
+  }
+
+  const panelCount = countPanelFilters(filters);
+  const chips = activeFilterChips(applied);
+  const invalidRange = salaryRangeInvalid(filters);
+  const payNeedsPeriod =
+    (applied.sort === "PAY_HIGH" || applied.sort === "PAY_LOW") && applied.salaryPeriod === "";
 
   return (
     <div className="space-y-6">
@@ -160,7 +97,7 @@ export default function JobsPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Job Listings</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Foreigner-friendly opportunities, filtered by pay, hours, shift and language needs.
+            Foreigner-friendly opportunities, filtered by pay, days, hours and language needs.
           </p>
         </div>
         {isAuthenticated && (
@@ -171,259 +108,272 @@ export default function JobsPage() {
       </div>
 
       <div className="card space-y-4 p-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <Input
-            label="Keyword"
-            value={filters.q}
-            onChange={(event) => set("q", event.target.value)}
-            onKeyDown={applyOnEnter}
-            placeholder="Title, company, description"
-          />
-          <Select
-            label="Job type"
-            value={filters.jobType}
-            onChange={(event) => set("jobType", event.target.value)}
-          >
-            <option value="">Any type</option>
-            {JOB_TYPES.map((value) => (
-              <option key={value} value={value}>
-                {humanize(value)}
-              </option>
-            ))}
-          </Select>
-          <Select
-            label="Location"
-            value={filters.location}
-            onChange={(event) => set("location", event.target.value)}
-          >
-            <option value="">All of South Korea</option>
-            {KOREA_LOCATIONS.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </Select>
+        <JobSearchBar
+          query={filters.q}
+          location={filters.location}
+          onQueryChange={(q) => setFilters((previous) => ({ ...previous, q }))}
+          onLocationChange={(location) => patch({ location })}
+          onSearch={(nextQuery) => patch(nextQuery !== undefined ? { q: nextQuery } : {})}
+        />
+
+        {/* Categories */}
+        <div
+          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
+          role="group"
+          aria-label="Job categories"
+        >
+          <Chip selected={filters.categories.length === 0} onClick={() => patch({ categories: [] })}>
+            All jobs
+          </Chip>
+          {CATEGORY_OPTIONS.map((option) => (
+            <Chip
+              key={option.value}
+              selected={filters.categories.includes(option.value)}
+              onClick={() => patch({ categories: toggleItem(filters.categories, option.value) })}
+            >
+              {option.label}
+            </Chip>
+          ))}
         </div>
 
-        {showMore && (
-          <div className="space-y-4 border-t border-slate-100 pt-4">
-            <div>
-              <p className="label">Salary range</p>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <Select
-                  aria-label="Salary period"
-                  value={filters.salaryPeriod}
-                  onChange={(event) => set("salaryPeriod", event.target.value)}
-                >
-                  <option value="">Any pay type</option>
-                  {SALARY_PERIOD_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Select>
-                <Input
-                  aria-label="Minimum salary in won"
-                  type="number"
-                  min={0}
-                  step={1000}
-                  inputMode="numeric"
-                  value={filters.minSalary}
-                  onChange={(event) => set("minSalary", event.target.value)}
-                  onKeyDown={applyOnEnter}
-                  placeholder="Min ₩ (e.g. 10000)"
-                />
-                <Input
-                  aria-label="Maximum salary in won"
-                  type="number"
-                  min={0}
-                  step={1000}
-                  inputMode="numeric"
-                  value={filters.maxSalary}
-                  onChange={(event) => set("maxSalary", event.target.value)}
-                  onKeyDown={applyOnEnter}
-                  placeholder="Max ₩ (e.g. 15000)"
-                  error={salaryRangeInvalid ? "Minimum is higher than maximum" : undefined}
-                />
-              </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Choose Per hour or Per month first, so hourly wages and monthly salaries aren&apos;t
-                compared with each other.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Select
-                label="Shift"
-                value={filters.shift}
-                onChange={(event) => set("shift", event.target.value)}
-              >
-                <option value="">Any shift</option>
-                {SHIFT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-              <Select
-                label="Working hours"
-                value={filters.maxHoursPerWeek}
-                onChange={(event) => set("maxHoursPerWeek", event.target.value)}
-              >
-                <option value="">Any hours</option>
-                {MAX_HOURS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-              <Select
-                label="Experience"
-                value={filters.experienceLevel}
-                onChange={(event) => set("experienceLevel", event.target.value)}
-              >
-                <option value="">Any experience</option>
-                {EXPERIENCE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-              <Select
-                label="Posted"
-                value={filters.postedWithinDays}
-                onChange={(event) => set("postedWithinDays", event.target.value)}
-              >
-                <option value="">Any time</option>
-                {POSTED_WITHIN_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="flex flex-wrap items-end gap-4">
-              <Select
-                label="Korean language"
-                className="w-full sm:w-56"
-                value={filters.koreanRequired}
-                onChange={(event) =>
-                  set("koreanRequired", event.target.value as JobFilters["koreanRequired"])
-                }
-              >
-                <option value="">Any</option>
-                <option value="false">No Korean needed</option>
-                <option value="true">Korean required</option>
-              </Select>
-
-              <label className="flex items-center gap-2 pb-2.5 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300"
-                  checked={filters.visaSponsorship}
-                  onChange={(event) => set("visaSponsorship", event.target.checked)}
-                />
-                Visa sponsorship available
-              </label>
-            </div>
-          </div>
-        )}
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-expanded={showMore}
-            onClick={() => setShowMore((open) => !open)}
+        {/* Quick filters */}
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Quick filters">
+          <Chip selected={filters.urgent} onClick={() => patch({ urgent: !filters.urgent })}>
+            Hiring now
+          </Chip>
+          <Chip
+            selected={filters.koreanRequired === "false"}
+            onClick={() => patch({ koreanRequired: filters.koreanRequired === "false" ? "" : "false" })}
           >
-            {showMore ? "Fewer filters" : "More filters"}
-            {activeAdvanced > 0 && (
-              <span className="badge bg-brand-100 text-brand-700">{activeAdvanced}</span>
+            No Korean needed
+          </Chip>
+          <Chip
+            selected={filters.experienceLevel === "NO_EXPERIENCE"}
+            onClick={() =>
+              patch({ experienceLevel: filters.experienceLevel === "NO_EXPERIENCE" ? "" : "NO_EXPERIENCE" })
+            }
+          >
+            Beginner friendly
+          </Chip>
+          <Chip
+            selected={sameSet(filters.availableDays, WEEKEND)}
+            onClick={() =>
+              patch({ availableDays: sameSet(filters.availableDays, WEEKEND) ? [] : [...WEEKEND] })
+            }
+          >
+            Weekend only
+          </Chip>
+          <Chip
+            selected={sameSet(filters.workPeriods, SHORT_TERM)}
+            onClick={() =>
+              patch({ workPeriods: sameSet(filters.workPeriods, SHORT_TERM) ? [] : [...SHORT_TERM] })
+            }
+          >
+            Short-term
+          </Chip>
+          <Chip
+            selected={filters.mealsProvided}
+            onClick={() => patch({ mealsProvided: !filters.mealsProvided })}
+          >
+            Meals provided
+          </Chip>
+          <Chip
+            selected={filters.housingProvided}
+            onClick={() => patch({ housingProvided: !filters.housingProvided })}
+          >
+            Housing
+          </Chip>
+          <Chip
+            selected={filters.visaSponsorship}
+            onClick={() => patch({ visaSponsorship: !filters.visaSponsorship })}
+          >
+            Visa sponsorship
+          </Chip>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            aria-expanded={showPanel}
+            onClick={() => setShowPanel((open) => !open)}
+          >
+            {showPanel ? "Hide filters" : "All filters"}
+            {panelCount > 0 && (
+              <span className="badge bg-brand-100 text-brand-700">{panelCount}</span>
             )}
           </Button>
-
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={clearFilters} disabled={!hasAnyFilter && !showMore}>
-              Clear filters
-            </Button>
-            <Button variant="outline" onClick={applyFilters} disabled={salaryRangeInvalid}>
-              Apply filters
-            </Button>
-          </div>
         </div>
+
+        {showPanel && (
+          <>
+            <JobFilterPanel filters={filters} onChange={setFilters} onApply={() => commit(filters)} />
+            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
+              <Button variant="ghost" onClick={clearAll} disabled={!hasAnyFilter(filters)}>
+                Clear filters
+              </Button>
+              <Button onClick={() => commit(filters)} disabled={invalidRange}>
+                Apply filters
+              </Button>
+            </div>
+          </>
+        )}
+
+        {chips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Active
+            </span>
+            {chips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
+                onClick={() => commit(chip.remove(applied))}
+                aria-label={`Remove filter ${chip.label}`}
+              >
+                {chip.label}
+                <span aria-hidden="true">×</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              className="text-xs font-medium text-slate-500 underline hover:text-slate-700"
+              onClick={clearAll}
+            >
+              Clear all
+            </button>
+          </div>
+        )}
       </div>
 
       {error && <ErrorState message={error} onRetry={load} />}
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-600" aria-live="polite">
+          {loading || !jobs
+            ? "Searching..."
+            : `${jobs.totalElements} ${jobs.totalElements === 1 ? "job" : "jobs"} found`}
+        </p>
+        <label className="flex items-center gap-2 text-sm text-slate-600">
+          Sort by
+          <select
+            className="input w-auto py-1.5"
+            value={filters.sort}
+            onChange={(event) => patch({ sort: event.target.value as JobSortOption })}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {payNeedsPeriod && (
+        <p className="-mt-3 text-xs text-amber-700">
+          Hourly and monthly pay are not comparable. Open All filters and choose Per hour or Per
+          month to sort pay fairly.
+        </p>
+      )}
 
       {loading ? (
         <LoadingState message="Loading jobs..." />
       ) : !jobs || jobs.content.length === 0 ? (
         <EmptyState
           title="No jobs match your filters"
-          description="Try broadening your search or clearing filters."
+          description="Try removing a few filters or searching a different keyword."
+          action={
+            hasAnyFilter(applied) ? (
+              <Button variant="outline" onClick={clearAll}>
+                Clear all filters
+              </Button>
+            ) : undefined
+          }
         />
       ) : (
         <>
-          <p className="text-sm text-slate-600">
-            {jobs.totalElements} {jobs.totalElements === 1 ? "job" : "jobs"} found
-          </p>
-
           <div className="space-y-3">
-            {jobs.content.map((job) => (
-              <article key={job.id} className="card card-hover p-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      <Badge tone="brand">{humanize(job.jobType)}</Badge>
-                      {job.visaSponsorship && <Badge tone="green">Visa sponsorship</Badge>}
-                      {!job.koreanRequired && <Badge tone="purple">No Korean needed</Badge>}
-                      {job.status !== "APPROVED" && (
-                        <Badge tone={statusTone(job.status)}>{humanize(job.status)}</Badge>
+            {jobs.content.map((job) => {
+              const perks = [
+                job.mealsProvided && "Meals",
+                job.housingProvided && "Housing",
+                job.insuranceProvided && "Insurance",
+                job.transportProvided && "Transport pay",
+              ].filter(Boolean) as string[];
+
+              const conditions = [
+                shiftLabel(job.shift),
+                job.hoursPerWeek ? `${job.hoursPerWeek} hrs/week` : "",
+                formatWorkDays(job.workDays),
+                workPeriodLabel(job.workPeriod),
+                experienceLabel(job.experienceLevel),
+              ].filter(Boolean);
+
+              return (
+                <article key={job.id} className="card card-hover p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {job.urgent && <Badge tone="red">Hiring now</Badge>}
+                        {job.category && <Badge tone="slate">{categoryLabel(job.category)}</Badge>}
+                        <Badge tone="brand">{humanize(job.jobType)}</Badge>
+                        {job.visaSponsorship && <Badge tone="green">Visa sponsorship</Badge>}
+                        {!job.koreanRequired && <Badge tone="purple">No Korean needed</Badge>}
+                        {job.status !== "APPROVED" && (
+                          <Badge tone={statusTone(job.status)}>{humanize(job.status)}</Badge>
+                        )}
+                      </div>
+
+                      <Link
+                        href={`/jobs/${job.id}`}
+                        className="text-lg font-semibold text-slate-900 hover:text-brand-700"
+                      >
+                        {job.title}
+                      </Link>
+
+                      <p className="mt-1 text-sm text-slate-600">
+                        {job.company}
+                        {job.location ? ` · ${job.location}` : ""}
+                      </p>
+
+                      <p className="mt-3 text-sm font-medium text-slate-800">
+                        {formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryPeriod)}
+                      </p>
+
+                      {conditions.length > 0 && (
+                        <p className="mt-1 text-sm text-slate-600">{conditions.join(" · ")}</p>
                       )}
+
+                      {perks.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {perks.map((perk) => (
+                            <span
+                              key={perk}
+                              className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                            >
+                              {perk}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="mt-2 text-xs text-slate-500">
+                        Posted {timeAgo(job.createdAt)} · {job.viewCount} views
+                        {job.deadline
+                          ? ` · Apply by ${new Date(job.deadline).toLocaleDateString()}`
+                          : ""}
+                      </p>
                     </div>
 
-                    <Link
-                      href={`/jobs/${job.id}`}
-                      className="text-lg font-semibold text-slate-900 hover:text-brand-700"
-                    >
-                      {job.title}
+                    <Link href={`/jobs/${job.id}`} className="shrink-0">
+                      <Button variant="outline" size="sm">
+                        View details
+                      </Button>
                     </Link>
-
-                    <p className="mt-1 text-sm text-slate-600">
-                      {job.company}
-                      {job.location ? ` · ${job.location}` : ""}
-                    </p>
-
-                    <p className="mt-3 text-sm font-medium text-slate-800">
-                      {formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryPeriod)}
-                    </p>
-
-                    {(job.shift || job.hoursPerWeek || job.experienceLevel) && (
-                      <p className="mt-1 text-sm text-slate-600">
-                        {[
-                          shiftLabel(job.shift),
-                          job.hoursPerWeek ? `${job.hoursPerWeek} hrs/week` : "",
-                          experienceLabel(job.experienceLevel),
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
-                    )}
-
-                    <p className="mt-2 text-xs text-slate-500">
-                      Posted {timeAgo(job.createdAt)} · {job.viewCount} views
-                    </p>
                   </div>
-
-                  <Link href={`/jobs/${job.id}`} className="shrink-0">
-                    <Button variant="outline" size="sm">
-                      View details
-                    </Button>
-                  </Link>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
 
           <Pagination page={jobs.page} totalPages={jobs.totalPages} onChange={setPage} />

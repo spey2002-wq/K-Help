@@ -42,6 +42,12 @@ spring:
     redis:
       time-to-live: 600000
 
+  servlet:
+    multipart:
+      # Profile photos; the service also enforces 5 MB and checks the real file type.
+      max-file-size: 5MB
+      max-request-size: 6MB
+
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -54,6 +60,10 @@ server:
     include-message: always
   compression:
     enabled: true
+  tomcat:
+    # Let Tomcat read an oversized upload to the end so the client receives a clean
+    # 413 response instead of a dropped connection.
+    max-swallow-size: 10MB
 
 app:
   jwt:

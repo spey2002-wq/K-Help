@@ -7,6 +7,7 @@ import com.khelp.info.dto.GuideResponse;
 import com.khelp.info.entity.Guide;
 import com.khelp.info.entity.GuideCategory;
 import com.khelp.info.repository.GuideRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,19 +30,26 @@ public class GuideService {
 
     @Cacheable(
             value = "guides",
-            key = "#category + ':' + #language + ':' + #query + ':' + #page + ':' + #size")
+            key = "#category + ':' + #language + ':' + #country + ':' + #query + ':' + #page + ':' + #size")
     @Transactional(readOnly = true)
     public PageResponse<GuideResponse> search(
-            GuideCategory category, String language, String query, int page, int size) {
+            GuideCategory category, String language, String country, String query, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         Page<Guide> guides = guideRepository.search(
                 category,
                 StringUtils.hasText(language) ? language : null,
+                StringUtils.hasText(country) ? country.trim() : null,
                 query,
                 pageable);
 
         return PageResponse.from(guides.map(GuideResponse::summaryOf));
+    }
+
+    /** Countries that have at least one published guide, for the country filter. */
+    @Transactional(readOnly = true)
+    public List<String> countries() {
+        return guideRepository.findPublishedCountries();
     }
 
     @Transactional
@@ -64,6 +72,7 @@ public class GuideService {
                 .summary(request.summary())
                 .content(request.content())
                 .category(request.category())
+                .country(StringUtils.hasText(request.country()) ? request.country().trim() : null)
                 .languageCode(StringUtils.hasText(request.languageCode()) ? request.languageCode() : "en")
                 .sourceUrl(request.sourceUrl())
                 .published(request.published() == null || request.published())
@@ -82,6 +91,7 @@ public class GuideService {
         guide.setSummary(request.summary());
         guide.setContent(request.content());
         guide.setCategory(request.category());
+        guide.setCountry(StringUtils.hasText(request.country()) ? request.country().trim() : null);
         if (StringUtils.hasText(request.languageCode())) {
             guide.setLanguageCode(request.languageCode());
         }

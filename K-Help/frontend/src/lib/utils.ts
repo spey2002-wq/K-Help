@@ -52,6 +52,12 @@ export function timeAgo(iso?: string | null): string {
   });
 }
 
+/** Display label for a guide topic; falls back to the humanized enum value. */
+export function guideCategoryLabel(value?: string | null): string {
+  if (value === "VISA_BY_COUNTRY") return "Visa by Country";
+  return humanize(value);
+}
+
 /** Converts an enum-like value such as VISA_IMMIGRATION into "Visa Immigration". */
 export function humanize(value?: string | null): string {
   if (!value) return "";

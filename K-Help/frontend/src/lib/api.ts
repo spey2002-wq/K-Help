@@ -12,6 +12,8 @@ import type {
   Comment,
   Conversation,
   DashboardStats,
+  Experience,
+  ExperienceInput,
   Guide,
   HousingInquiry,
   HousingListing,
@@ -19,6 +21,8 @@ import type {
   JobListing,
   PageResponse,
   Post,
+  Profile,
+  ProfilePhoto,
   Report,
   User,
 } from "@/types";
@@ -143,6 +147,9 @@ export function errorMessage(error: unknown): string {
   return "Something went wrong";
 }
 
+/** Lets the browser set the multipart boundary itself while overriding the JSON default. */
+const MULTIPART: AxiosRequestConfig = { headers: { "Content-Type": "multipart/form-data" } };
+
 // ------------------------------------------------------------------- API ---
 
 export const api = {
@@ -163,6 +170,45 @@ export const api = {
 
     updateProfile: (body: Partial<User>) =>
       unwrap<User>(http.put("/api/auth/me", body)),
+  },
+
+  profile: {
+    get: () => unwrap<Profile>(http.get("/api/profile")),
+
+    setSkills: (skills: string[]) =>
+      unwrap<string[]>(http.put("/api/profile/skills", { skills })),
+
+    addExperience: (body: ExperienceInput) =>
+      unwrap<Experience>(http.post("/api/profile/experiences", body)),
+
+    updateExperience: (id: number, body: ExperienceInput) =>
+      unwrap<Experience>(http.put(`/api/profile/experiences/${id}`, body)),
+
+    deleteExperience: (id: number) =>
+      unwrap<null>(http.delete(`/api/profile/experiences/${id}`)),
+
+    uploadAvatar: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return unwrap<User>(http.post("/api/profile/avatar", form, MULTIPART));
+    },
+
+    deleteAvatar: () => unwrap<User>(http.delete("/api/profile/avatar")),
+
+    addPhoto: (file: File, caption?: string) => {
+      const form = new FormData();
+      form.append("file", file);
+      if (caption) form.append("caption", caption);
+      return unwrap<ProfilePhoto>(http.post("/api/profile/photos", form, MULTIPART));
+    },
+
+    deletePhoto: (id: number) => unwrap<null>(http.delete(`/api/profile/photos/${id}`)),
+
+    /** Downloads a protected image as a Blob (images need the member's token). */
+    imageBlob: async (path: string) => {
+      const { data } = await http.get<Blob>(path, { responseType: "blob" });
+      return data;
+    },
   },
 
   community: {
@@ -197,16 +243,20 @@ export const api = {
   info: {
     list: (params?: {
       category?: string;
+      country?: string;
       language?: string;
       q?: string;
       page?: number;
       size?: number;
     }) => unwrap<PageResponse<Guide>>(http.get("/api/guides", { params })),
 
+    countries: () => unwrap<string[]>(http.get("/api/guides/countries")),
+
     get: (id: number) => unwrap<Guide>(http.get(`/api/guides/${id}`)),
   },
 
   jobs: {
+    /** Multi-value filters (jobType, category, ...) are sent as comma separated lists. */
     list: (params?: {
       q?: string;
       jobType?: string;
@@ -220,9 +270,21 @@ export const api = {
       maxHoursPerWeek?: number;
       experienceLevel?: string;
       postedWithinDays?: number;
+      category?: string;
+      workPeriod?: string;
+      availableDays?: string;
+      mealsProvided?: boolean;
+      housingProvided?: boolean;
+      insuranceProvided?: boolean;
+      transportProvided?: boolean;
+      urgent?: boolean;
+      sort?: string;
       page?: number;
       size?: number;
     }) => unwrap<PageResponse<JobListing>>(http.get("/api/jobs", { params })),
+
+    suggestions: (q: string) =>
+      unwrap<string[]>(http.get("/api/jobs/suggestions", { params: { q } })),
 
     get: (id: number) => unwrap<JobListing>(http.get(`/api/jobs/${id}`)),
 

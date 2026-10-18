@@ -62,6 +62,49 @@ export interface RegisterRequest {
   preferredLanguage?: string;
 }
 
+// --------------------------------------------------------------- profile ---
+
+export type ExperienceKind = "WORK" | "EDUCATION" | "OTHER";
+
+export interface Experience {
+  id: number;
+  kind: ExperienceKind;
+  title: string;
+  organization?: string | null;
+  location?: string | null;
+  /** ISO date (yyyy-mm-dd); only year and month are shown. */
+  startDate?: string | null;
+  endDate?: string | null;
+  current: boolean;
+  description?: string | null;
+}
+
+export interface ExperienceInput {
+  kind: ExperienceKind;
+  title: string;
+  organization?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  current: boolean;
+  description?: string;
+}
+
+export interface ProfilePhoto {
+  id: number;
+  caption?: string | null;
+  /** API path of the image; fetched with the member's token. */
+  url: string;
+  createdAt: string;
+}
+
+export interface Profile {
+  user: User;
+  skills: string[];
+  experiences: Experience[];
+  photos: ProfilePhoto[];
+}
+
 // ------------------------------------------------------------- community ---
 
 export type PostCategory =
@@ -111,6 +154,7 @@ export interface Comment {
 
 export type GuideCategory =
   | "VISA_IMMIGRATION"
+  | "VISA_BY_COUNTRY"
   | "HEALTHCARE"
   | "BANKING"
   | "HOUSING"
@@ -126,6 +170,8 @@ export interface Guide {
   summary: string;
   content?: string;
   category: GuideCategory;
+  /** Country the guide is written for (null for guides that apply to everyone). */
+  country?: string | null;
   languageCode: string;
   sourceUrl?: string;
   viewCount: number;
@@ -148,6 +194,37 @@ export type SalaryPeriod = "HOURLY" | "MONTHLY" | "YEARLY";
 
 export type ExperienceLevel = "NO_EXPERIENCE" | "JUNIOR" | "MID" | "SENIOR";
 
+export type JobCategory =
+  | "RESTAURANT"
+  | "CAFE"
+  | "CONVENIENCE_STORE"
+  | "RETAIL"
+  | "DELIVERY_DRIVING"
+  | "EDUCATION"
+  | "OFFICE_ADMIN"
+  | "IT_DESIGN"
+  | "WAREHOUSE_FACTORY"
+  | "CONSTRUCTION"
+  | "BEAUTY_FITNESS"
+  | "CLEANING"
+  | "HOTEL_TOURISM"
+  | "HEALTHCARE"
+  | "TRANSLATION"
+  | "EVENT_PROMOTION"
+  | "OTHER";
+
+export type WorkPeriod =
+  | "ONE_DAY"
+  | "UNDER_1_MONTH"
+  | "ONE_TO_3_MONTHS"
+  | "THREE_TO_6_MONTHS"
+  | "OVER_6_MONTHS";
+
+/** Day codes in Monday-to-Sunday order. */
+export type WorkDay = "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
+
+export type JobSortOption = "NEWEST" | "MOST_VIEWED" | "DEADLINE_SOON" | "PAY_HIGH" | "PAY_LOW";
+
 export type ListingStatus = "PENDING" | "APPROVED" | "REJECTED" | "CLOSED";
 
 export interface JobListing {
@@ -167,6 +244,14 @@ export interface JobListing {
   shift?: JobShift;
   hoursPerWeek?: number;
   experienceLevel?: ExperienceLevel;
+  category?: JobCategory;
+  workDays?: WorkDay[];
+  workPeriod?: WorkPeriod;
+  mealsProvided?: boolean;
+  housingProvided?: boolean;
+  insuranceProvided?: boolean;
+  transportProvided?: boolean;
+  urgent?: boolean;
   contactEmail?: string;
   deadline?: string;
   postedById: number;

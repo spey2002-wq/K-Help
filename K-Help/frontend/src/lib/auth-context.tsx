@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import api, { tokenStore } from "@/lib/api";
+import { clearImageCache } from "@/components/ui/Avatar";
 import type { AuthResponse, User } from "@/types";
 
 interface AuthContextValue {
@@ -81,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     tokenStore.clear();
+    clearImageCache();
     setUser(null);
     router.push("/login");
   }, [router]);

@@ -13,20 +13,20 @@ import com.khelp.job.dto.JobSearchCriteria;
 import com.khelp.job.entity.ApplicationStatus;
 import com.khelp.job.entity.JobApplication;
 import com.khelp.job.entity.JobListing;
-import com.khelp.job.entity.JobType;
+import com.khelp.job.entity.JobSort;
 import com.khelp.job.entity.ListingStatus;
 import com.khelp.job.repository.JobApplicationRepository;
 import com.khelp.job.repository.JobListingRepository;
+import com.khelp.job.repository.JobSpecifications;
 import com.khelp.security.SecurityUtils;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -38,6 +38,8 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class JobService {
 
+    private static final int SUGGESTION_LIMIT = 8;
+
     private final JobListingRepository jobListingRepository;
     private final JobApplicationRepository jobApplicationRepository;
     private final UserRepository userRepository;
@@ -45,32 +47,28 @@ public class JobService {
     @Transactional(readOnly = true)
     public PageResponse<JobListingResponse> search(JobSearchCriteria criteria, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        JobSort sort = criteria.sort() != null ? criteria.sort() : JobSort.NEWEST;
+        Pageable pageable = PageRequest.of(
+                Math.max(page, 0), Math.min(Math.max(size, 1), 50), sort.toSort());
 
-        // "No limit" values are passed as plain defaults rather than nulls so the
-        // database never has to infer the type of an untyped NULL parameter.
-        int maxHours = criteria.maxHoursPerWeek() != null
-                ? criteria.maxHoursPerWeek() : Integer.MAX_VALUE;
-        Instant postedAfter = criteria.postedWithinDays() != null && criteria.postedWithinDays() > 0
-                ? Instant.now().minus(criteria.postedWithinDays(), ChronoUnit.DAYS)
-                : Instant.EPOCH;
-
-        Page<JobListing> jobs = jobListingRepository.search(
-                criteria.query(),
-                criteria.jobType(),
-                criteria.location(),
-                criteria.visaSponsorship(),
-                criteria.koreanRequired(),
-                criteria.minSalary(),
-                criteria.maxSalary(),
-                criteria.salaryPeriod(),
-                criteria.shift(),
-                criteria.experienceLevel(),
-                maxHours,
-                postedAfter,
-                pageable);
+        Page<JobListing> jobs = jobListingRepository.findAll(
+                JobSpecifications.matching(criteria), pageable);
 
         return PageResponse.from(jobs.map(JobListingResponse::summaryOf));
+    }
+
+    /** Type-ahead for the search box: matching job titles first, then company names. */
+    @Transactional(readOnly = true)
+    public List<String> suggestions(String text) {
+        if (!StringUtils.hasText(text) || text.trim().length() < 2) {
+            return List.of();
+        }
+        String escaped = text.trim().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        Pageable top = PageRequest.of(0, SUGGESTION_LIMIT);
+
+        Set<String> merged = new LinkedHashSet<>(jobListingRepository.findTitleSuggestions(escaped, top));
+        merged.addAll(jobListingRepository.findCompanySuggestions(escaped, top));
+        return merged.stream().limit(SUGGESTION_LIMIT).toList();
     }
 
     @Transactional
@@ -109,6 +107,14 @@ public class JobService {
                 .shift(request.shift())
                 .hoursPerWeek(request.hoursPerWeek())
                 .experienceLevel(request.experienceLevel())
+                .category(request.category())
+                .workDays(WorkDays.toStorage(request.workDays()))
+                .workPeriod(request.workPeriod())
+                .mealsProvided(Boolean.TRUE.equals(request.mealsProvided()))
+                .housingProvided(Boolean.TRUE.equals(request.housingProvided()))
+                .insuranceProvided(Boolean.TRUE.equals(request.insuranceProvided()))
+                .transportProvided(Boolean.TRUE.equals(request.transportProvided()))
+                .urgent(Boolean.TRUE.equals(request.urgent()))
                 .contactEmail(request.contactEmail())
                 .deadline(request.deadline())
                 .postedBy(poster)
@@ -145,6 +151,14 @@ public class JobService {
         job.setShift(request.shift());
         job.setHoursPerWeek(request.hoursPerWeek());
         job.setExperienceLevel(request.experienceLevel());
+        job.setCategory(request.category());
+        job.setWorkDays(WorkDays.toStorage(request.workDays()));
+        job.setWorkPeriod(request.workPeriod());
+        job.setMealsProvided(Boolean.TRUE.equals(request.mealsProvided()));
+        job.setHousingProvided(Boolean.TRUE.equals(request.housingProvided()));
+        job.setInsuranceProvided(Boolean.TRUE.equals(request.insuranceProvided()));
+        job.setTransportProvided(Boolean.TRUE.equals(request.transportProvided()));
+        job.setUrgent(Boolean.TRUE.equals(request.urgent()));
         job.setContactEmail(request.contactEmail());
         job.setDeadline(request.deadline());
 
