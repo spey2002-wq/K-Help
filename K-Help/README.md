@@ -72,28 +72,28 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws
 ```
 
-## Deployment (free cloud)
+## Deployment (free cloud, Render only)
 
-The backend, PostgreSQL and Redis run on **Render**; the frontend runs on **Vercel**.
+Everything runs on **Render**'s free plan: PostgreSQL, Redis, the Spring Boot API and the
+Next.js website, all defined in `render.yaml` at the repository root.
 
-1. **Backend + database + Redis (Render).** In Render choose *New + > Blueprint*, pick this
-   GitHub repository and apply `render.yaml` (it sits at the repository root). When asked,
-   set `AI_API_KEY` (your OpenRouter key) and `APP_CORS_ALLOWED_ORIGINS` (use `*.vercel.app`
-   for now, then your real Vercel URL). Wait for the service to show *Live*, then open
-   `https://<your-service>.onrender.com/actuator/health`; it should say `UP`.
-2. **Frontend (Vercel).** Import the same repository, set **Root Directory** to
-   `K-Help/frontend`, and add two environment variables **before the first build**:
-   - `NEXT_PUBLIC_API_URL` = `https://<your-service>.onrender.com`
-   - `NEXT_PUBLIC_WS_URL` = `wss://<your-service>.onrender.com/ws`
-3. **Connect them.** Copy the Vercel URL into `APP_CORS_ALLOWED_ORIGINS` on Render and let it
-   redeploy.
+1. Sign in at render.com with GitHub, then choose **New + > Blueprint** and pick this repository.
+2. Render lists `khelp-db`, `khelp-redis`, `khelp-backend` and `khelp-frontend`. When asked for
+   `AI_API_KEY`, paste your OpenRouter key, then click **Apply**.
+3. Wait for both web services to show **Live** (the first build takes about 10 minutes).
+4. Open `https://khelp-backend.onrender.com/actuator/health` (it should say `UP`), then open
+   `https://khelp-frontend.onrender.com` for the website.
 
-Notes: `NEXT_PUBLIC_*` values are baked in at build time, so redeploy Vercel after changing
-them. Free Render services sleep after about 15 minutes of inactivity (the first request is
-slow), and the free database expires after 30 days. Database changes ship as Flyway
-migrations in `backend/src/main/resources/db/migration` and run automatically on start.
-Never commit `.env` files or API keys.
+**If your URLs differ.** The blueprint assumes the services get the URLs above. If Render adds a
+random suffix because a name was taken, change these values and redeploy:
+`NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_WS_URL` on `khelp-frontend` (they are baked in at build
+time, so use *Manual Deploy > Clear build cache & deploy*), and `APP_CORS_ALLOWED_ORIGINS` on
+`khelp-backend` (set it to the frontend URL).
 
+Notes: free Render services sleep after about 15 minutes of inactivity (the first request takes
+30-60 seconds), and the free database expires after 30 days. Database changes ship as Flyway
+migrations in `backend/src/main/resources/db/migration` and run automatically on start. Change
+the demo account passwords after the first deploy, and never commit `.env` files or API keys.
 ## Baseline API Surface
 
 | Module    | Base Path        | Highlights                                        |
