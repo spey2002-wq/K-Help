@@ -13,7 +13,7 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-paper text-slate-900 antialiased;
     text-rendering: optimizeLegibility;
   }
 
@@ -48,8 +48,79 @@
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
   }
 
+  /* Emoji drawn in one quiet tone so icons never compete with the content. */
+  .emoji-mono {
+    filter: grayscale(1) contrast(0.95);
+    opacity: 0.85;
+  }
+
   /* Primary gradient button surface used on the home hero. */
   .hero-cta {
     @apply bg-white/95 text-brand-700 shadow-sm hover:bg-white;
+  }
+}
+/* ---- App-like behaviour on touch devices ---- */
+html {
+  /* No pull-to-refresh bounce chaining or accidental text-size changes. */
+  overscroll-behavior-y: none;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+[role="button"],
+select {
+  touch-action: manipulation;
+}
+
+/* 16px inputs stop iOS from zooming the page when a field is focused. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Installed app: no website footer, and the bar clears the status area. */
+@media (display-mode: standalone) {
+  .app-footer {
+    display: none;
+  }
+}
+
+/* ---- Opening screen: phones and the installed app only ---- */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  place-items: center;
+  background:
+    radial-gradient(600px 300px at 50% 30%, rgb(194 214 255 / 0.55), transparent 70%),
+    #ffffff;
+  animation: splash-out 0.5s ease 1.3s forwards;
+}
+
+@media (max-width: 767px), (display-mode: standalone) {
+  .splash {
+    display: grid;
+  }
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    animation-duration: 0.01s;
+    animation-delay: 0.6s;
   }
 }

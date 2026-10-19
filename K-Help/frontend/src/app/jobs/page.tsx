@@ -69,6 +69,17 @@ export default function JobsPage() {
     void load();
   }, [load]);
 
+  // Deep links such as /jobs?category=CAFE preselect a job category.
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("category");
+    const match = CATEGORY_OPTIONS.find((option) => option.value === requested);
+    if (match) {
+      const next = { ...EMPTY_FILTERS, categories: [match.value] };
+      setFilters(next);
+      setApplied(next);
+    }
+  }, []);
+
   /** Shows the new filters and searches with them straight away. */
   function commit(next: JobFilters) {
     if (salaryRangeInvalid(next)) return;

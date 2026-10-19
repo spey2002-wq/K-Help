@@ -71,6 +71,15 @@ export default function HousingPage() {
     void load();
   }, [load]);
 
+  // Deep links such as /housing?type=SHARE_HOUSE preselect a property type.
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("type");
+    if (requested && (PROPERTY_TYPES as string[]).includes(requested)) {
+      setFilters((current) => ({ ...current, propertyType: requested }));
+      setApplied((current) => ({ ...current, propertyType: requested }));
+    }
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">

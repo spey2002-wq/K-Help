@@ -13,9 +13,9 @@ const KIND_LABELS: Record<ExperienceKind, string> = {
 };
 
 const KIND_STYLES: Record<ExperienceKind, string> = {
-  WORK: "bg-indigo-100 text-indigo-700",
-  EDUCATION: "bg-emerald-100 text-emerald-700",
-  OTHER: "bg-amber-100 text-amber-700",
+  WORK: "bg-brand-100 text-brand-700",
+  EDUCATION: "bg-slate-100 text-slate-700",
+  OTHER: "bg-accent-100 text-accent-600",
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

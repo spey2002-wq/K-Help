@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -20,11 +19,10 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname();
   const { user, isAuthenticated, isAdmin, logout, loading } = useAuth();
-  const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
-      <div className="container flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+      <div className="container flex h-14 items-center md:h-16 justify-between gap-4">
         <Link href="/" className="group flex items-center gap-2.5 font-bold text-slate-900">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-base font-bold text-white shadow-soft transition-transform group-hover:scale-105">
             K
@@ -53,8 +51,8 @@ export function Navbar() {
               className={cn(
                 "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 pathname.startsWith("/admin")
-                  ? "bg-purple-50 text-purple-700"
-                  : "text-purple-600 hover:bg-purple-50",
+                  ? "bg-accent-50 text-accent-600"
+                  : "text-accent-600 hover:bg-accent-50",
               )}
             >
               Admin
@@ -100,79 +98,20 @@ export function Navbar() {
           )}
         </div>
 
-        <button
-          type="button"
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
-          aria-label="Toggle navigation"
-          aria-expanded={open}
-          onClick={() => setOpen((value) => !value)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {open ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
-          </svg>
-        </button>
-      </div>
-
-      {open && (
-        <div className="border-t border-slate-200 bg-white md:hidden">
-          <nav className="container flex flex-col py-2">
-            {isAuthenticated && user && (
-              <Link
-                href="/profile"
-                onClick={() => setOpen(false)}
-                className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100"
-              >
-                <Avatar user={user} className="h-9 w-9 text-sm" />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-slate-900">
-                    {user.fullName || user.username}
-                  </span>
-                  <span className="block text-xs text-slate-500">View my profile</span>
-                </span>
-              </Link>
-            )}
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                {link.label}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50"
-              >
-                Admin
-              </Link>
-            )}
-            <div className="mt-2 flex gap-2 border-t border-slate-200 pt-3">
-              {isAuthenticated ? (
-                <Button variant="outline" size="sm" onClick={logout} className="w-full">
-                  Sign out
-                </Button>
-              ) : (
-                <>
-                  <Link href="/login" className="flex-1" onClick={() => setOpen(false)}>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Sign in
-                    </Button>
-                  </Link>
-                  <Link href="/register" className="flex-1" onClick={() => setOpen(false)}>
-                    <Button size="sm" className="w-full">
-                      Register
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </nav>
+        {/* Phone: compact app bar. Everything else lives in the bottom tab bar. */}
+        <div className="flex items-center md:hidden">
+          {loading ? null : isAuthenticated && user ? (
+            <Link href="/profile" aria-label="My profile" className="rounded-full active:scale-95">
+              <Avatar user={user} className="h-9 w-9 text-sm ring-2 ring-white" />
+            </Link>
+          ) : (
+            <Link href="/login">
+              <Button size="sm" variant="outline">
+                Sign in
+              </Button>
+            </Link>
+          )}
         </div>
-      )}
-    </header>
+      </div>    </header>
   );
 }

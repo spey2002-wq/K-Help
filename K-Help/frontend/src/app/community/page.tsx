@@ -63,6 +63,14 @@ export default function CommunityPage() {
     void load();
   }, [load]);
 
+  // Deep links such as /community?category=BANKING preselect a category.
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("category");
+    if (requested && (CATEGORIES as string[]).includes(requested)) {
+      setCategory(requested);
+    }
+  }, []);
+
   async function handleCreate() {
     if (!draft.title.trim() || !draft.content.trim()) return;
 

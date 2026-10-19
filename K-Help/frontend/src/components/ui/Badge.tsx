@@ -9,7 +9,7 @@ const TONES: Record<Tone, string> = {
   amber: "bg-amber-50 text-amber-700",
   red: "bg-red-50 text-red-700",
   slate: "bg-slate-100 text-slate-700",
-  purple: "bg-purple-50 text-purple-700",
+  purple: "bg-accent-50 text-accent-600",
 };
 
 export function Badge({
