@@ -19,6 +19,7 @@ type IconName =
   | "user"
   | "clipboard"
   | "shield"
+  | "code"
   | "logout";
 
 const ICON_PATHS: Record<IconName, string> = {
@@ -37,6 +38,7 @@ const ICON_PATHS: Record<IconName, string> = {
   clipboard:
     "M9 3h6v4H9z M7 5H5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2 M9 12h6 M9 16h6",
   shield: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z",
+  code: "M16 18l6-6-6-6 M8 6l-6 6 6 6",
   logout: "M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4 M16 17l5-5-5-5 M21 12H9",
 };
 
@@ -104,6 +106,7 @@ export function BottomNav() {
     moreLinks.push(
       { href: "/profile", label: "My profile", hint: user?.username ?? "Photo and skills", icon: "user" },
       { href: "/jobs/applications", label: "Applications", hint: "Jobs you applied to", icon: "clipboard" },
+    { href: "/tech", label: "How it's built", hint: "Frontend, backend, data", icon: "code" },
     );
   }
   if (isAdmin) {

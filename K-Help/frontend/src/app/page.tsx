@@ -265,6 +265,12 @@ export default function HomePage() {
           <div className="mt-6 space-y-3">
             <HomeCta tone="light" />
             <InstallAppButton />
+            <p className="text-sm text-slate-500">
+              Curious how it works?{" "}
+              <Link href="/tech" className="font-semibold text-brand-700 hover:underline">
+                See how K-Help is built →
+              </Link>
+            </p>
           </div>
         </div>
 

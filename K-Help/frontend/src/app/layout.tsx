@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { Navbar } from "@/components/layout/Navbar";
@@ -46,7 +47,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="font-medium text-slate-600">
                 K-Help · Korea Life Platform for Foreign Residents
               </p>
-              <p className="text-slate-400">NP Coders · Capstone Project</p>
+              <p className="text-slate-400">
+                <Link href="/tech" className="font-medium text-brand-700 hover:underline">
+                  How it&apos;s built
+                </Link>
+                {" · "}NP Coders · Capstone Project
+              </p>
             </div>
           </footer>
           <BottomNav />
