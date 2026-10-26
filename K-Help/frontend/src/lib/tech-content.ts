@@ -39,7 +39,7 @@ export const LAYERS: TechLayer[] = [
       { name: "Next.js 15 (App Router)", role: "The web framework. Every page (home, jobs, housing, guides, chat) is a route." },
       { name: "React 19", role: "Builds the screens from reusable components such as buttons, cards and filters." },
       { name: "TypeScript", role: "JavaScript with types, so mistakes like a wrong field name are caught before the app runs." },
-      { name: "Tailwind CSS", role: "Styling with small utility classes. The colours and spacing come from one shared theme." },
+      { name: "Tailwind CSS", role: "Styling with small utility classes. The colors and spacing come from one shared theme." },
       { name: "Axios", role: "Sends requests to the API, attaches the login token, and refreshes it when it expires." },
       { name: "STOMP + SockJS", role: "The live connection used by chat for instant messages and read receipts." },
       { name: "PWA (manifest + service worker)", role: "Lets people install K-Help to the home screen and shows an offline page without internet." },

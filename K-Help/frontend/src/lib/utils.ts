@@ -55,6 +55,7 @@ export function timeAgo(iso?: string | null): string {
 /** Display label for a guide topic; falls back to the humanized enum value. */
 export function guideCategoryLabel(value?: string | null): string {
   if (value === "VISA_BY_COUNTRY") return "Visa by Country";
+  if (value === "VISA_IMMIGRATION") return "Visa & Immigration";
   return humanize(value);
 }
 

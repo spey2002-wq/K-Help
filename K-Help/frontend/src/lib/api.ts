@@ -124,7 +124,7 @@ http.interceptors.response.use(
 async function unwrap<T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<T> {
   const { data } = await promise;
   if (!data.success) {
-    throw new Error(data.message || "Request failed");
+    throw new Error(data.message || "Something went wrong. Please try again.");
   }
   return data.data;
 }
@@ -141,7 +141,7 @@ export function errorMessage(error: unknown): string {
       if (first) return String(first);
     }
     if (payload?.message) return payload.message;
-    if (!error.response) return "Cannot reach the server. Is the backend running?";
+    if (!error.response) return "Cannot reach the server. It may be waking up, so please wait a moment and try again.";
   }
   if (error instanceof Error) return error.message;
   return "Something went wrong";

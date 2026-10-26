@@ -22,7 +22,7 @@ const NAME_PATTERN = new RegExp(
 
 /**
  * Guide text where bank and money-service names become links to the
- * organisation's own website.
+ * organization's own website.
  */
 export function LinkedContent({ text }: { text: string }) {
   // split() with one capture group puts the matched names at the odd indexes.

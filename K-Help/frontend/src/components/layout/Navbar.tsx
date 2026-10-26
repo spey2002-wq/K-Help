@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/community", label: "Community" },
-  { href: "/info", label: "Korea Info" },
+  { href: "/info", label: "Guides" },
   { href: "/jobs", label: "Jobs" },
   { href: "/housing", label: "Housing" },
   { href: "/chat", label: "Chat" },

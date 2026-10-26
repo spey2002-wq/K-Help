@@ -14,7 +14,7 @@ interface Option<T extends string> {
 }
 
 export const SHIFT_OPTIONS: Option<JobShift>[] = [
-  { value: "DAY", label: "Day (morning - afternoon)" },
+  { value: "DAY", label: "Day (morning to afternoon)" },
   { value: "EVENING", label: "Evening" },
   { value: "NIGHT", label: "Night" },
   { value: "ROTATING", label: "Rotating shifts" },

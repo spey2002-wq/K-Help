@@ -3,11 +3,11 @@ import { CATEGORY_OPTIONS } from "@/lib/job-options";
 export interface TopicTone {
   /** Soft background for icon tiles and panels. */
   soft: string;
-  /** Strong text colour for headings and links. */
+  /** Strong text color for headings and links. */
   text: string;
-  /** Border colour for panels. */
+  /** Border color for panels. */
   border: string;
-  /** Solid dot / bar colour. */
+  /** Solid dot / bar color. */
   solid: string;
   /** Pill used for "main topic" links. */
   pill: string;
@@ -205,8 +205,8 @@ export const TOPICS: Topic[] = [
     id: "info",
     href: "/info",
     icon: "📘",
-    title: "Korea Info",
-    eyebrow: "Living guides",
+    title: "Living Guides",
+    eyebrow: "Learn the basics",
     summary:
       "Practical, curated guides for the paperwork and decisions newcomers face, from your first ARC to opening a bank account. Search them, or jump straight to a topic.",
     highlights: [
