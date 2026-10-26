@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { SlowHint } from "@/components/ui/SlowHint";
 
 /** Centered spinner used while a page or panel is loading. */
 export function Spinner({ className }: { className?: string }) {
@@ -21,6 +22,7 @@ export function LoadingState({ message = "Loading..." }: { message?: string }) {
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-500">
       <Spinner className="h-6 w-6" />
       <p className="text-sm">{message}</p>
+      <SlowHint />
     </div>
   );
 }
