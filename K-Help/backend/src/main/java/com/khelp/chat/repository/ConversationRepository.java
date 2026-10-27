@@ -17,6 +17,14 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
             """)
     Page<Conversation> findAllForUser(@Param("userId") Long userId, Pageable pageable);
 
+    /** True when the user is one of the two people in the conversation. */
+    @Query("""
+            SELECT COUNT(c) > 0 FROM Conversation c
+            WHERE c.id = :conversationId
+              AND (c.participantOne.id = :userId OR c.participantTwo.id = :userId)
+            """)
+    boolean isParticipant(@Param("conversationId") Long conversationId, @Param("userId") Long userId);
+
     /**
      * Finds an existing one-to-one conversation regardless of participant order.
      */

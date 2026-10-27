@@ -115,6 +115,10 @@ the demo account passwords after the first deploy, and never commit `.env` files
 | ashish   | `User@123`  | USER  |
 | divya    | `User@123`  | USER  |
 
+These passwords are for local development only. On a public deployment set
+`APP_ADMIN_PASSWORD` (and optionally `APP_ADMIN_USERNAME`) so the administrator
+account gets a private password at startup.
+
 ## Team Ownership
 
 | Member                    | Area                             |

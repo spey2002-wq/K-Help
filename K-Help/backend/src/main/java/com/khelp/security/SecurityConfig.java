@@ -41,16 +41,36 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:*,http://127.0.0.1:*}")
     private List<String> allowedOrigins;
 
-    /** Endpoints reachable without a token. */
-    private static final String[] PUBLIC_ENDPOINTS = {
+    /** Sign-up and sign-in calls that must work before a member has a token. */
+    private static final String[] PUBLIC_POST_ENDPOINTS = {
             "/api/auth/register",
             "/api/auth/login",
-            "/api/auth/refresh",
+            "/api/auth/refresh"
+    };
+
+    /**
+     * Read-only browsing that anyone may do. Only GET is public: every write
+     * (post, edit, delete, apply, like) needs a token, so it is rejected with 401
+     * by the security filter before it reaches any controller.
+     */
+    private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/api/guides/**",
             "/api/jobs/**",
             "/api/housing/**",
             "/api/posts/**",
-            "/api/comments/**",
+            "/api/comments/**"
+    };
+
+    /** GET endpoints under the public prefixes above that expose private data. */
+    private static final String[] PRIVATE_GET_ENDPOINTS = {
+            "/api/jobs/applications/me",
+            "/api/jobs/*/applications",
+            "/api/housing/inquiries/me",
+            "/api/housing/*/inquiries"
+    };
+
+    /** Health check and API documentation. */
+    private static final String[] PUBLIC_SYSTEM_ENDPOINTS = {
             "/actuator/health",
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -68,7 +88,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, PRIVATE_GET_ENDPOINTS).authenticated()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_SYSTEM_ENDPOINTS).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->

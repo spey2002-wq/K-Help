@@ -76,6 +76,16 @@ services:
       - key: APP_CORS_ALLOWED_ORIGINS
         value: https://k-help.vercel.app,https://khelp-frontend.onrender.com
       # AI middleware (OpenRouter). Paste the key in the dashboard; never commit it.
+      # API documentation stays available locally but is not published on the
+      # public deployment.
+      - key: SPRINGDOC_API_DOCS_ENABLED
+        value: "false"
+      - key: SPRINGDOC_SWAGGER_UI_ENABLED
+        value: "false"
+      # Replaces the documented seed password of the "admin" account. Enter a
+      # long private value in the Render dashboard (at least 10 characters).
+      - key: APP_ADMIN_PASSWORD
+        sync: false
       - key: AI_API_KEY
         sync: false
       - key: AI_BASE_URL

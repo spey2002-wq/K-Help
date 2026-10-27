@@ -8,7 +8,10 @@ import com.khelp.auth.dto.UpdateProfileRequest;
 import com.khelp.auth.dto.UserResponse;
 import com.khelp.auth.service.AuthService;
 import com.khelp.common.dto.ApiResponse;
+import com.khelp.security.LoginRateLimiter;
 import com.khelp.security.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.BadCredentialsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final LoginRateLimiter loginRateLimiter;
 
     @Operation(summary = "Register a new member")
     @PostMapping("/register")
@@ -44,8 +48,18 @@ public class AuthController {
     @Operation(summary = "Sign in with username/email and password")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
-            @Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Login successful", authService.login(request)));
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest) {
+        String address = LoginRateLimiter.clientAddress(httpRequest);
+        loginRateLimiter.checkAllowed(request.username(), address);
+        try {
+            AuthResponse response = authService.login(request);
+            loginRateLimiter.recordSuccess(request.username(), address);
+            return ResponseEntity.ok(ApiResponse.ok("Login successful", response));
+        } catch (BadCredentialsException ex) {
+            loginRateLimiter.recordFailure(request.username(), address);
+            throw ex;
+        }
     }
 
     @Operation(summary = "Exchange a refresh token for a new access token")

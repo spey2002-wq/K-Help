@@ -7,6 +7,9 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -45,6 +48,18 @@ public class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException ex) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error("Invalid value for '" + ex.getName() + "'"));
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
+    public ResponseEntity<ApiResponse<Void>> handleUnreadableRequest(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Malformed or incomplete request"));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ApiResponse.error("Method not allowed"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

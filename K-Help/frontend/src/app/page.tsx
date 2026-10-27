@@ -277,13 +277,10 @@ export default function HomePage() {
         <div className="card p-8 lg:col-span-2">
           <h2 className="text-lg font-bold tracking-tight text-slate-900">Try the demo</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Sample accounts are included so you can explore every feature right away.
+            A sample member account is included so you can explore the app right away. It is a
+            regular member account, so it can only change its own data.
           </p>
           <div className="mt-4 space-y-3">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-sm font-semibold text-slate-700">Administrator</p>
-              <p className="mt-0.5 font-mono text-sm text-slate-600">admin / Admin@123</p>
-            </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
               <p className="text-sm font-semibold text-slate-700">Member</p>
               <p className="mt-0.5 font-mono text-sm text-slate-600">ashish / User@123</p>
