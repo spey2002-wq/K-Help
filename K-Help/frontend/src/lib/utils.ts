@@ -59,9 +59,16 @@ export function guideCategoryLabel(value?: string | null): string {
   return humanize(value);
 }
 
-/** Converts an enum-like value such as VISA_IMMIGRATION into "Visa Immigration". */
+/** Labels that need more than simple capitalization. */
+const SPECIAL_LABELS: Record<string, string> = {
+  VISA_IMMIGRATION: "Visa & Immigration",
+  VISA_BY_COUNTRY: "Visa by Country",
+};
+
+/** Converts an enum-like value such as SHARE_HOUSE into "Share House". */
 export function humanize(value?: string | null): string {
   if (!value) return "";
+  if (SPECIAL_LABELS[value]) return SPECIAL_LABELS[value];
   return value
     .toLowerCase()
     .split("_")

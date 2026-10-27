@@ -71,8 +71,8 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 rounded-lg bg-slate-50 p-4 text-xs text-slate-600">
-          <p className="font-medium text-slate-700">Demo credentials</p>
-          <p className="mt-1 font-mono">admin / Admin@123 · ashish / User@123</p>
+          <p className="font-medium text-slate-700">Sample member account</p>
+          <p className="mt-1 font-mono">ashish / User@123</p>
         </div>
 
         <p className="mt-6 text-center text-sm text-slate-600">
