@@ -1,4 +1,4 @@
-"""K-Help API security test suite (118 checks).
+"""K-Help API security test suite (121 checks).
 
 Usage:  python security_test.py            (tests the live deployment)
         KHELP_API=http://localhost:8080 KHELP_WEB=http://localhost:3000 python security_test.py
@@ -41,6 +41,7 @@ def js(t):
 
 
 def check(group, name, ok, detail=""):
+    ok = bool(ok)
     results.append((group, name, ok, detail))
     print(("PASS " if ok else "FAIL ") + f"[{group}] {name}" + (f"  ({detail})" if detail else ""), flush=True)
 
