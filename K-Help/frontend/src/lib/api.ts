@@ -288,6 +288,8 @@ export const api = {
 
     get: (id: number) => unwrap<JobListing>(http.get(`/api/jobs/${id}`)),
 
+    mine: () => unwrap<JobListing[]>(http.get("/api/jobs/mine")),
+
     create: (body: Partial<JobListing>) => unwrap<JobListing>(http.post("/api/jobs", body)),
 
     apply: (id: number, body: { coverLetter?: string; resumeUrl?: string }) =>
@@ -319,6 +321,8 @@ export const api = {
     }) => unwrap<PageResponse<HousingListing>>(http.get("/api/housing", { params })),
 
     get: (id: number) => unwrap<HousingListing>(http.get(`/api/housing/${id}`)),
+
+    mine: () => unwrap<HousingListing[]>(http.get("/api/housing/mine")),
 
     create: (body: Partial<HousingListing>) =>
       unwrap<HousingListing>(http.post("/api/housing", body)),

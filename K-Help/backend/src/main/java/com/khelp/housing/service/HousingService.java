@@ -226,6 +226,16 @@ public class HousingService {
                 .orElseThrow(() -> ApiException.notFound("Housing listing"));
     }
 
+    /** The current member's own listings (including ones still waiting for admin approval). */
+    @Transactional(readOnly = true)
+    public List<HousingListingResponse> myListings() {
+        User lister = requireCurrentUser();
+        return housingListingRepository
+                .findByListedById(lister.getId(),
+                        PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(HousingListingResponse::summaryOf)
+                .getContent();
+    }
     private User requireCurrentUser() {
         return userRepository.findByUsername(SecurityUtils.currentUsername())
                 .orElseThrow(() -> ApiException.notFound("User"));

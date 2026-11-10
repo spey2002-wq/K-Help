@@ -102,6 +102,11 @@ public class HousingController {
         return ResponseEntity.ok(ApiResponse.ok(housingService.inquiriesForListing(id)));
     }
 
+    @Operation(summary = "List the properties the current member posted (any approval status)")
+    @GetMapping("/mine")
+    public ResponseEntity<ApiResponse<List<HousingListingResponse>>> myListings() {
+        return ResponseEntity.ok(ApiResponse.ok(housingService.myListings()));
+    }
     @Operation(summary = "List the current member's property inquiries")
     @GetMapping("/inquiries/me")
     public ResponseEntity<ApiResponse<List<HousingInquiryResponse>>> myInquiries() {

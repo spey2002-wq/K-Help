@@ -92,7 +92,7 @@ for m, p in [("POST", "/api/posts"), ("POST", "/api/jobs"), ("POST", "/api/housi
     s, _, _ = call(m, BE + p, {})
     check(G, f"{m} {p} without token is rejected", s in (401, 403), f"status {s}")
 for p in ["/api/auth/me", "/api/profile", "/api/chat/conversations", "/api/jobs/applications/me", "/api/housing/inquiries/me",
-          "/api/jobs/1/applications", "/api/housing/1/inquiries", "/api/admin/stats", "/api/admin/users", "/api/admin/reports"]:
+          "/api/jobs/mine", "/api/housing/mine", "/api/jobs/1/applications", "/api/housing/1/inquiries", "/api/admin/stats", "/api/admin/users", "/api/admin/reports"]:
     s, _, _ = call("GET", BE + p)
     check(G, f"GET {p} without token is rejected", s in (401, 403), f"status {s}")
 
@@ -134,6 +134,10 @@ s, t, _ = call("POST", BE + "/api/jobs", JOB, A)
 jid = (js(t).get("data") or {}).get("id")
 check(G, "member can create own job (test data)", s in (200, 201) and jid, f"status {s}")
 if jid:
+    s, t, _ = call("GET", BE + "/api/jobs/mine", None, A)
+    check(G, "owner sees own new job in /api/jobs/mine", s == 200 and any(x.get("id") == jid for x in (js(t).get("data") or [])), f"status {s}")
+    s, t, _ = call("GET", BE + "/api/jobs/mine", None, B)
+    check(G, "other member does not see it in their /api/jobs/mine", s == 200 and not any(x.get("id") == jid for x in (js(t).get("data") or [])), f"status {s}")
     s, _, _ = call("PUT", BE + f"/api/jobs/{jid}", dict(JOB, title="hacked"), B)
     check(G, "non-owner cannot edit someone else's job (valid body)", s in (403, 404), f"status {s}")
     s, _, _ = call("DELETE", BE + f"/api/jobs/{jid}", None, B)
@@ -148,6 +152,10 @@ s, t, _ = call("POST", BE + "/api/housing", HOUSE, A)
 hid = (js(t).get("data") or {}).get("id")
 check(G, "member can create own listing (test data)", s in (200, 201) and hid, f"status {s}")
 if hid:
+    s, t, _ = call("GET", BE + "/api/housing/mine", None, A)
+    check(G, "owner sees own new listing in /api/housing/mine", s == 200 and any(x.get("id") == hid for x in (js(t).get("data") or [])), f"status {s}")
+    s, t, _ = call("GET", BE + "/api/housing/mine", None, B)
+    check(G, "other member does not see it in their /api/housing/mine", s == 200 and not any(x.get("id") == hid for x in (js(t).get("data") or [])), f"status {s}")
     s, _, _ = call("PUT", BE + f"/api/housing/{hid}", dict(HOUSE, title="hacked"), B)
     check(G, "non-owner cannot edit someone else's listing (valid body)", s in (403, 404), f"status {s}")
     s, _, _ = call("DELETE", BE + f"/api/housing/{hid}", None, B)

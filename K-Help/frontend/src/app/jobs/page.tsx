@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { JobListing, JobSortOption, PageResponse } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { MyPosts } from "@/components/ui/MyPosts";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
@@ -117,6 +118,8 @@ export default function JobsPage() {
           </Link>
         )}
       </div>
+
+      <MyPosts kind="jobs" />
 
       <div className="card space-y-4 p-4">
         <JobSearchBar

@@ -257,6 +257,17 @@ public class JobService {
                 .orElseThrow(() -> ApiException.notFound("Job listing"));
     }
 
+    /** The current member's own listings (including ones still waiting for admin approval). */
+    @Transactional(readOnly = true)
+    public List<JobListingResponse> myListings() {
+        User poster = requireCurrentUser();
+        return jobListingRepository
+                .findByPostedById(poster.getId(),
+                        PageRequest.of(0, 50, org.springframework.data.domain.Sort.by(
+                                org.springframework.data.domain.Sort.Direction.DESC, "createdAt")))
+                .map(JobListingResponse::summaryOf)
+                .getContent();
+    }
     private User requireCurrentUser() {
         return userRepository.findByUsername(SecurityUtils.currentUsername())
                 .orElseThrow(() -> ApiException.notFound("User"));

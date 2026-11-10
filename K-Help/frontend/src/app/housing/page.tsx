@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { HousingListing, PageResponse, PropertyType } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { MyPosts } from "@/components/ui/MyPosts";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
@@ -95,6 +96,8 @@ export default function HousingPage() {
           </Link>
         )}
       </div>
+
+      <MyPosts kind="housing" />
 
       <div className="card space-y-4 p-4">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

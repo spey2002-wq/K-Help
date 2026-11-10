@@ -132,6 +132,11 @@ public class JobController {
         return ResponseEntity.ok(ApiResponse.ok(jobService.applicationsForListing(id)));
     }
 
+    @Operation(summary = "List the listings the current member posted (any approval status)")
+    @GetMapping("/mine")
+    public ResponseEntity<ApiResponse<List<JobListingResponse>>> myListings() {
+        return ResponseEntity.ok(ApiResponse.ok(jobService.myListings()));
+    }
     @Operation(summary = "List the current member's job applications")
     @GetMapping("/applications/me")
     public ResponseEntity<ApiResponse<List<JobApplicationResponse>>> myApplications() {

@@ -106,7 +106,6 @@ export function BottomNav() {
     moreLinks.push(
       { href: "/profile", label: "My profile", hint: user?.username ?? "Photo and skills", icon: "user" },
       { href: "/jobs/applications", label: "Applications", hint: "Jobs you applied to", icon: "clipboard" },
-    { href: "/tech", label: "How it's built", hint: "Frontend, backend, data", icon: "code" },
     );
   }
   if (isAdmin) {
