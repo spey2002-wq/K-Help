@@ -99,7 +99,7 @@ export default function RegisterPage() {
               name="fullName"
               value={form.fullName}
               onChange={(event) => update("fullName", event.target.value)}
-              placeholder="Ashish Pokhrel"
+              placeholder="Your full name"
             />
           </div>
 
