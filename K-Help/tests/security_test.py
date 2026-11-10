@@ -1,4 +1,4 @@
-"""K-Help API security test suite (121 checks).
+"""K-Help API security test suite (126 checks).
 
 Usage:  python security_test.py            (tests the live deployment)
         KHELP_API=http://localhost:8080 KHELP_WEB=http://localhost:3000 python security_test.py
@@ -127,27 +127,35 @@ if pid:
     check(G, "post is unchanged after attack attempts", "hacked" not in t, "")
     s, _, _ = call("DELETE", BE + f"/api/posts/{pid}", None, A)
     check(G, "owner can delete own post (cleanup)", s in (200, 204), f"status {s}")
-# a job and a housing listing from the public lists
-s, t, _ = call("GET", BE + "/api/jobs?size=5")
-jobs = (js(t).get("data") or {}).get("content") or []
-if jobs:
-    jid = jobs[0]["id"]
-    s, _, _ = call("GET", BE + f"/api/jobs/{jid}/applications", None, B)
-    check(G, "non-owner cannot list applicants of a job", s in (403, 404), f"status {s}")
-    s, _, _ = call("PUT", BE + f"/api/jobs/{jid}", {"title": "hacked"}, B)
-    check(G, "non-owner cannot edit someone else's job", s in (400, 403, 404), f"status {s}")
+# listings created by the sample member; the other user then attacks them with VALID request bodies
+JOB = {"title": "sectest job " + rnd, "company": "SecTest Co", "description": "temporary security-test listing", "jobType": "PART_TIME"}
+HOUSE = {"title": "sectest room " + rnd, "description": "temporary security-test listing", "propertyType": "ONE_ROOM"}
+s, t, _ = call("POST", BE + "/api/jobs", JOB, A)
+jid = (js(t).get("data") or {}).get("id")
+check(G, "member can create own job (test data)", s in (200, 201) and jid, f"status {s}")
+if jid:
+    s, _, _ = call("PUT", BE + f"/api/jobs/{jid}", dict(JOB, title="hacked"), B)
+    check(G, "non-owner cannot edit someone else's job (valid body)", s in (403, 404), f"status {s}")
     s, _, _ = call("DELETE", BE + f"/api/jobs/{jid}", None, B)
     check(G, "non-owner cannot delete someone else's job", s in (403, 404), f"status {s}")
-s, t, _ = call("GET", BE + "/api/housing?size=5")
-hs = (js(t).get("data") or {}).get("content") or []
-if hs:
-    hid = hs[0]["id"]
-    s, _, _ = call("GET", BE + f"/api/housing/{hid}/inquiries", None, B)
-    check(G, "non-owner cannot read inquiries of a listing", s in (403, 404), f"status {s}")
-    s, _, _ = call("PUT", BE + f"/api/housing/{hid}", {"title": "hacked"}, B)
-    check(G, "non-owner cannot edit someone else's listing", s in (400, 403, 404), f"status {s}")
+    s, _, _ = call("GET", BE + f"/api/jobs/{jid}/applications", None, B)
+    check(G, "non-owner cannot list applicants of a job", s in (403, 404), f"status {s}")
+    s, _, _ = call("PUT", BE + f"/api/jobs/{jid}", dict(JOB, title="renamed by owner"), A)
+    check(G, "owner can edit own job", s == 200, f"status {s}")
+    s, _, _ = call("DELETE", BE + f"/api/jobs/{jid}", None, A)
+    check(G, "owner can delete own job (cleanup)", s in (200, 204), f"status {s}")
+s, t, _ = call("POST", BE + "/api/housing", HOUSE, A)
+hid = (js(t).get("data") or {}).get("id")
+check(G, "member can create own listing (test data)", s in (200, 201) and hid, f"status {s}")
+if hid:
+    s, _, _ = call("PUT", BE + f"/api/housing/{hid}", dict(HOUSE, title="hacked"), B)
+    check(G, "non-owner cannot edit someone else's listing (valid body)", s in (403, 404), f"status {s}")
     s, _, _ = call("DELETE", BE + f"/api/housing/{hid}", None, B)
     check(G, "non-owner cannot delete someone else's listing", s in (403, 404), f"status {s}")
+    s, _, _ = call("GET", BE + f"/api/housing/{hid}/inquiries", None, B)
+    check(G, "non-owner cannot read inquiries of a listing", s in (403, 404), f"status {s}")
+    s, _, _ = call("DELETE", BE + f"/api/housing/{hid}", None, A)
+    check(G, "owner can delete own listing (cleanup)", s in (200, 204), f"status {s}")
 leak = 0
 for cid in range(1, 31):
     s, _, _ = call("GET", BE + f"/api/chat/conversations/{cid}/messages", None, B)
