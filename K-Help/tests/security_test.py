@@ -92,7 +92,7 @@ for m, p in [("POST", "/api/posts"), ("POST", "/api/jobs"), ("POST", "/api/housi
     s, _, _ = call(m, BE + p, {})
     check(G, f"{m} {p} without token is rejected", s in (401, 403), f"status {s}")
 for p in ["/api/auth/me", "/api/profile", "/api/chat/conversations", "/api/jobs/applications/me", "/api/housing/inquiries/me",
-          "/api/jobs/mine", "/api/housing/mine", "/api/jobs/1/applications", "/api/housing/1/inquiries", "/api/admin/stats", "/api/admin/users", "/api/admin/reports"]:
+          "/api/posts/mine", "/api/jobs/mine", "/api/housing/mine", "/api/jobs/1/applications", "/api/housing/1/inquiries", "/api/admin/stats", "/api/admin/users", "/api/admin/reports"]:
     s, _, _ = call("GET", BE + p)
     check(G, f"GET {p} without token is rejected", s in (401, 403), f"status {s}")
 
@@ -148,6 +148,8 @@ if jid:
     check(G, "owner can edit own job", s == 200, f"status {s}")
     s, _, _ = call("DELETE", BE + f"/api/jobs/{jid}", None, A)
     check(G, "owner can delete own job (cleanup)", s in (200, 204), f"status {s}")
+s, t, _ = call("GET", BE + "/api/posts/mine", None, A)
+check(G, "member can list own community posts via /api/posts/mine", s == 200 and isinstance(js(t).get("data"), list), f"status {s}")
 s, t, _ = call("POST", BE + "/api/housing", HOUSE, A)
 hid = (js(t).get("data") or {}).get("id")
 check(G, "member can create own listing (test data)", s in (200, 201) and hid, f"status {s}")

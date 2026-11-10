@@ -55,6 +55,17 @@ public class CommunityService {
         return PageResponse.from(posts.map(PostResponse::from));
     }
 
+    /** The current member's own (non-deleted) community posts, newest first. */
+    @Transactional(readOnly = true)
+    public List<PostResponse> myPosts() {
+        User author = requireCurrentUser();
+        return postRepository
+                .findByAuthorIdAndDeletedFalse(author.getId(),
+                        PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(PostResponse::from)
+                .getContent();
+    }
+
     @Transactional
     public PostResponse getPost(Long id) {
         Post post = requirePost(id);

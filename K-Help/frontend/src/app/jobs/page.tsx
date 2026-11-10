@@ -372,7 +372,7 @@ export default function JobsPage() {
                       )}
 
                       <p className="mt-2 text-xs text-slate-500">
-                        Posted {timeAgo(job.createdAt)} · {job.viewCount} views
+                        Posted by {job.postedByUsername} · {timeAgo(job.createdAt)} · {job.viewCount} views
                         {job.deadline
                           ? ` · Apply by ${new Date(job.deadline).toLocaleDateString()}`
                           : ""}

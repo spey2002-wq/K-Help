@@ -65,6 +65,7 @@ public class SecurityConfig {
 
     /** GET endpoints under the public prefixes above that expose private data. */
     private static final String[] PRIVATE_GET_ENDPOINTS = {
+            "/api/posts/mine",
             "/api/jobs/mine",
             "/api/housing/mine",
             "/api/jobs/applications/me",

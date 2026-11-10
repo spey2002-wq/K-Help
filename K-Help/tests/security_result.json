@@ -1,0 +1,24 @@
+{
+ "test_user": "sectest_5rdpej",
+ "pass": 132,
+ "fail": 0,
+ "info": 3,
+ "failures": [],
+ "infos": [
+  [
+   "input",
+   "returned items for size=100000",
+   "59 (shows whether the server caps page size)"
+  ],
+  [
+   "xss",
+   "API stores HTML text as plain data",
+   "status 201; React escapes it on the page, so it renders as text. Verify visually if you want."
+  ],
+  [
+   "headers",
+   "backend: content-security-policy missing",
+   "CSP (hardening suggestion, not a break-in)"
+  ]
+ ]
+}

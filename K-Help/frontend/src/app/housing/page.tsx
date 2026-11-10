@@ -252,7 +252,7 @@ export default function HousingPage() {
                   </div>
 
                   <p className="mt-4 flex-1 text-xs text-slate-500">
-                    Listed {timeAgo(listing.createdAt)}
+                    Listed by {listing.listedByUsername} · {timeAgo(listing.createdAt)}
                   </p>
 
                   <Link href={`/housing/${listing.id}`} className="mt-3">

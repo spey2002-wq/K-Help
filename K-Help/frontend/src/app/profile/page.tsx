@@ -10,6 +10,7 @@ import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { SkillsSection } from "@/components/profile/SkillsSection";
 import { ExperienceSection } from "@/components/profile/ExperienceSection";
 import { PhotosSection } from "@/components/profile/PhotosSection";
+import { MyPostsSection } from "@/components/profile/MyPostsSection";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -103,6 +104,8 @@ export default function ProfilePage() {
         onError={showError}
         onNotice={showNotice}
       />
+
+      <MyPostsSection />
 
       <SkillsSection
         skills={profile.skills}

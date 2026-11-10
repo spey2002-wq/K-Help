@@ -49,6 +49,12 @@ public class CommunityController {
                 ApiResponse.ok(communityService.listPosts(category, q, page, size)));
     }
 
+    @Operation(summary = "List the community posts the current member wrote")
+    @GetMapping("/mine")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> myPosts() {
+        return ResponseEntity.ok(ApiResponse.ok(communityService.myPosts()));
+    }
+
     @Operation(summary = "Get a single post and increment its view count")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable Long id) {

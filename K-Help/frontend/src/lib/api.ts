@@ -215,6 +215,8 @@ export const api = {
     list: (params?: { category?: string; q?: string; page?: number; size?: number }) =>
       unwrap<PageResponse<Post>>(http.get("/api/posts", { params })),
 
+    mine: () => unwrap<Post[]>(http.get("/api/posts/mine")),
+
     get: (id: number) => unwrap<Post>(http.get(`/api/posts/${id}`)),
 
     create: (body: { title: string; content: string; category: string }) =>
