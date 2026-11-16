@@ -88,7 +88,11 @@ export function MyPostsSection() {
       <h2 className="text-lg font-semibold text-slate-900">My posts</h2>
       <p className="mt-1 text-sm text-slate-600">
         What you have posted on K-Help. Jobs and housing listings are checked by an
-        administrator before everyone can see them.
+        administrator before everyone can see them. Messages people send you are in{" "}
+        <Link href="/inbox" className="font-medium text-brand-700 hover:underline">
+          Inbox
+        </Link>
+        .
       </p>
 
       {!groups ? (

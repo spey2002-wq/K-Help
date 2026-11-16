@@ -63,6 +63,17 @@ export function Navbar() {
         <div className="hidden items-center gap-2 md:flex">
           {loading ? null : isAuthenticated ? (
             <>
+              <Link
+                href="/inbox"
+                className={cn(
+                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  pathname.startsWith("/inbox")
+                    ? "bg-brand-50 text-brand-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                )}
+              >
+                Inbox
+              </Link>
               {user && (
                 <Link
                   href="/profile"

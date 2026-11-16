@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { formatKrw, formatSalaryRange, humanize, timeAgo } from "@/lib/utils";
+import { OwnerInbox } from "@/components/listings/OwnerInbox";
 import {
   MIN_HOURLY_WAGE_KRW,
   categoryLabel,
@@ -23,7 +24,7 @@ import {
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
   const jobId = Number(params.id);
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
 
   const [job, setJob] = useState<JobListing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,8 @@ export default function JobDetailPage() {
   if (loading) return <LoadingState message="Loading job..." />;
   if (error && !job) return <ErrorState message={error} onRetry={load} />;
   if (!job) return null;
+
+  const isOwner = Boolean(user && (user.id === job.postedById || isAdmin));
 
   const belowMinimumWage =
     job.salaryPeriod === "HOURLY" &&
@@ -234,7 +237,11 @@ export default function JobDetailPage() {
         </section>
 
         <div className="mt-8 border-t border-slate-200 pt-6">
-          {isAuthenticated ? (
+          {isOwner ? (
+            <p className="text-sm text-slate-600">
+              This is your listing. Applications from other members are below.
+            </p>
+          ) : isAuthenticated ? (
             job.status === "APPROVED" ? (
               <Button onClick={() => setApplyOpen((open) => !open)}>
                 {applyOpen ? "Cancel" : "Apply for this job"}
@@ -251,6 +258,8 @@ export default function JobDetailPage() {
           )}
         </div>
       </article>
+
+      {isOwner && <OwnerInbox kind="job" listingId={job.id} />}
 
       {applyOpen && (
         <div className="card space-y-4 p-6">

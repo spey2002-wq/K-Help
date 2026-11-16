@@ -66,7 +66,7 @@ const TABS: { href: string; label: string; icon: IconName }[] = [
   { href: "/housing", label: "Housing", icon: "building" },
 ];
 
-const MORE_PATHS = ["/community", "/chat", "/ai", "/profile", "/admin", "/login", "/register"];
+const MORE_PATHS = ["/community", "/chat", "/ai", "/profile", "/inbox", "/admin", "/login", "/register"];
 
 function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -105,6 +105,7 @@ export function BottomNav() {
   if (isAuthenticated) {
     moreLinks.push(
       { href: "/profile", label: "My profile", hint: user?.username ?? "Photo and skills", icon: "user" },
+      { href: "/inbox", label: "Inbox", hint: "Inquiries on your posts", icon: "chat" },
       { href: "/jobs/applications", label: "Applications", hint: "Jobs you applied to", icon: "clipboard" },
     );
   }

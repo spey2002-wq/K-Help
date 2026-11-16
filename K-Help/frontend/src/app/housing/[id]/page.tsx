@@ -11,11 +11,12 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { formatKrw, humanize, timeAgo } from "@/lib/utils";
+import { OwnerInbox } from "@/components/listings/OwnerInbox";
 
 export default function HousingDetailPage() {
   const params = useParams<{ id: string }>();
   const listingId = Number(params.id);
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
 
   const [listing, setListing] = useState<HousingListing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,7 +147,11 @@ export default function HousingDetailPage() {
           </section>
 
           <div className="mt-8 border-t border-slate-200 pt-6">
-            {isAuthenticated ? (
+            {user && (user.id === listing.listedById || isAdmin) ? (
+              <p className="text-sm text-slate-600">
+                This is your listing. Inquiries from other members are below.
+              </p>
+            ) : isAuthenticated ? (
               listing.status === "AVAILABLE" ? (
                 <Button onClick={() => setInquiryOpen((open) => !open)}>
                   {inquiryOpen ? "Cancel" : "Send inquiry"}
@@ -164,6 +169,10 @@ export default function HousingDetailPage() {
           </div>
         </div>
       </article>
+
+      {user && (user.id === listing.listedById || isAdmin) && (
+        <OwnerInbox kind="housing" listingId={listing.id} />
+      )}
 
       {inquiryOpen && (
         <div className="card space-y-4 p-6">
