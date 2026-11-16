@@ -92,7 +92,7 @@ export default function ConversationPage() {
           ← All conversations
         </Link>
         <Badge tone={connected ? "green" : "amber"}>
-          {connected ? "Live" : "Connecting..."}
+          {connected ? "Live" : "Offline · messages still send"}
         </Badge>
       </div>
 

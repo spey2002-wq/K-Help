@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Client, type IMessage } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import { tokenStore, WS_URL } from "@/lib/api";
 import type { ChatMessage } from "@/types";
 
@@ -12,12 +11,19 @@ interface ReadReceipt {
   readAt: string;
 }
 
+/** SockJS wants http(s); native STOMP wants ws(s). Normalize either form. */
+function toBrokerUrl(raw: string): string {
+  if (raw.startsWith("https://")) return `wss://${raw.slice("https://".length)}`;
+  if (raw.startsWith("http://")) return `ws://${raw.slice("http://".length)}`;
+  return raw;
+}
+
 /**
  * Subscribes to a single conversation over STOMP and exposes helpers to send
  * messages and publish read receipts.
  *
- * <p>The client is only created in the browser and is torn down on unmount or
- * when the conversation id changes.
+ * Uses the native WebSocket endpoint on the API (`/ws`). Messages still work
+ * over REST when this socket is not connected yet.
  */
 export function useChatSocket(conversationId: number | null) {
   const clientRef = useRef<Client | null>(null);
@@ -30,11 +36,11 @@ export function useChatSocket(conversationId: number | null) {
       return;
     }
 
+    const token = tokenStore.getAccessToken() ?? "";
     const client = new Client({
-      // SockJS handles the fallback transports that the backend endpoint exposes.
-      webSocketFactory: () => new SockJS(WS_URL) as unknown as WebSocket,
+      brokerURL: toBrokerUrl(WS_URL),
       connectHeaders: {
-        Authorization: `Bearer ${tokenStore.getAccessToken() ?? ""}`,
+        Authorization: `Bearer ${token}`,
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
@@ -55,13 +61,15 @@ export function useChatSocket(conversationId: number | null) {
       },
       onDisconnect: () => setConnected(false),
       onWebSocketClose: () => setConnected(false),
+      onStompError: () => setConnected(false),
+      onWebSocketError: () => setConnected(false),
     });
 
     client.activate();
     clientRef.current = client;
 
     return () => {
-      client.deactivate();
+      void client.deactivate();
       clientRef.current = null;
       setConnected(false);
     };
