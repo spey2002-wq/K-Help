@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { errorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -12,6 +13,7 @@ import { ErrorState } from "@/components/ui/Feedback";
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const { t } = useLocale();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -36,10 +38,8 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-md py-8">
       <div className="card p-8">
-        <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
-        <p className="mt-1.5 text-sm text-slate-600">
-          Sign in to post, apply for jobs and chat with other residents.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("page.login.title")}</h1>
+        <p className="mt-1.5 text-sm text-slate-600">{t("page.login.desc")}</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {error && <ErrorState message={error} />}

@@ -45,6 +45,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // Clear leftover Google Translate cookies from the previous approach.
+    document.cookie = "googtrans=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = `googtrans=;path=/;domain=${window.location.hostname};expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     setLocaleState(readStoredLocale());
     setReady(true);
   }, []);
@@ -59,9 +62,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setLocaleState(code);
   }, []);
 
-  // Keep English as the source language in the DOM. PageTranslator (Google Translate)
-  // then converts the whole site so every page updates, not only dictionary keys.
-  const t = useCallback((key: MessageKey) => translate("en", key), []);
+  const t = useCallback((key: MessageKey) => translate(locale, key), [locale]);
 
   const current = useMemo(
     () => LOCALES.find((item) => item.code === locale) ?? LOCALES[0],

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { PageResponse, Post, PostCategory } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
@@ -27,6 +28,7 @@ const CATEGORIES: PostCategory[] = [
 
 export default function CommunityPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
 
   const [posts, setPosts] = useState<PageResponse<Post> | null>(null);
   const [page, setPage] = useState(0);
@@ -109,14 +111,12 @@ export default function CommunityPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Community</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Ask questions and share experience with other foreign residents.
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("page.community.title")}</h1>
+          <p className="mt-1 text-sm text-slate-600">{t("page.community.desc")}</p>
         </div>
         {isAuthenticated ? (
           <Button onClick={() => setComposerOpen((open) => !open)}>
-            {composerOpen ? "Cancel" : "New post"}
+            {composerOpen ? "Cancel" : t("page.newPost")}
           </Button>
         ) : (
           <Link href="/login">

@@ -52,7 +52,7 @@ export function LanguageSwitcher({ compact = false, className }: Props) {
   }, [open]);
 
   return (
-    <div ref={rootRef} className={cn("relative", className)}>
+    <div ref={rootRef} className={cn("relative notranslate", className)}>
       <button
         type="button"
         aria-haspopup="listbox"

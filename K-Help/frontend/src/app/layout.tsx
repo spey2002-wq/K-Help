@@ -6,7 +6,6 @@ import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { Navbar } from "@/components/layout/Navbar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { PageTranslator } from "@/components/layout/PageTranslator";
 import { PwaRegister } from "@/components/app/PwaRegister";
 import { Splash } from "@/components/app/Splash";
 
@@ -41,7 +40,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen font-sans">
         <AuthProvider>
           <LocaleProvider>
-            <PageTranslator />
             <Navbar />
             <main className="container pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 md:py-10">
               {children}

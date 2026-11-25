@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { errorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
@@ -23,6 +24,7 @@ const VISA_TYPES: { value: string; label: string }[] = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLocale();
   const { register } = useAuth();
 
   const [form, setForm] = useState({
@@ -75,11 +77,8 @@ export default function RegisterPage() {
   return (
     <div className="mx-auto max-w-lg py-8">
       <div className="card p-8">
-        <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-        <p className="mt-1.5 text-sm text-slate-600">
-          Tell us a little about yourself so we can tailor guides, jobs and housing to your
-          situation.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("page.register.title")}</h1>
+        <p className="mt-1.5 text-sm text-slate-600">{t("page.register.desc")}</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {error && <ErrorState message={error} />}

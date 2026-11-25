@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { Conversation, PageResponse } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
@@ -13,6 +14,7 @@ import { timeAgo } from "@/lib/utils";
 
 export default function ChatPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
 
   const [conversations, setConversations] = useState<PageResponse<Conversation> | null>(null);
   const [page, setPage] = useState(0);
@@ -56,10 +58,8 @@ export default function ChatPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Messages</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Chat directly with job posters, landlords and other members.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("page.chat.title")}</h1>
+        <p className="mt-1 text-sm text-slate-600">{t("page.chat.desc")}</p>
       </div>
 
       {error && <ErrorState message={error} onRetry={load} />}

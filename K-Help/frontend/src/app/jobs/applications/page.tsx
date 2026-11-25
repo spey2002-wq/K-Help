@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { ApplicationStatus, JobApplication } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
@@ -12,6 +13,7 @@ import { humanize, timeAgo } from "@/lib/utils";
 
 export default function MyApplicationsPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,10 +56,8 @@ export default function MyApplicationsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My applications</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Track the status of every job you have applied to.
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("page.applications.title")}</h1>
+          <p className="mt-1 text-sm text-slate-600">{t("page.applications.desc")}</p>
         </div>
         <Link href="/jobs" className="text-sm text-brand-600 hover:underline">
           Browse jobs

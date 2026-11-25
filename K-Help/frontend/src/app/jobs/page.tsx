@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { JobListing, JobSortOption, PageResponse } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { MyPosts } from "@/components/ui/MyPosts";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -43,6 +44,7 @@ function sameSet(a: string[], b: readonly string[]): boolean {
 
 export default function JobsPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
 
   const [jobs, setJobs] = useState<PageResponse<JobListing> | null>(null);
   const [page, setPage] = useState(0);
@@ -107,10 +109,8 @@ export default function JobsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Job Listings</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Foreigner-friendly opportunities, filtered by pay, days, hours and language needs.
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("page.jobs.title")}</h1>
+          <p className="mt-1 text-sm text-slate-600">{t("page.jobs.desc")}</p>
         </div>
         {isAuthenticated && (
           <Link href="/jobs/new">

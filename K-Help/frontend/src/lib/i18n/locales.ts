@@ -36,7 +36,30 @@ export type MessageKey =
   | "more.applicationsHint"
   | "more.adminHint"
   | "footer.tagline"
-  | "footer.team";
+  | "footer.team"
+  | "page.jobs.title"
+  | "page.jobs.desc"
+  | "page.housing.title"
+  | "page.housing.desc"
+  | "page.guides.title"
+  | "page.guides.desc"
+  | "page.community.title"
+  | "page.community.desc"
+  | "page.chat.title"
+  | "page.chat.desc"
+  | "page.ai.title"
+  | "page.ai.desc"
+  | "page.inbox.title"
+  | "page.inbox.desc"
+  | "page.login.title"
+  | "page.login.desc"
+  | "page.register.title"
+  | "page.register.desc"
+  | "page.applications.title"
+  | "page.applications.desc"
+  | "page.postJob"
+  | "page.listProperty"
+  | "page.newPost";
 
 export type LocaleOption = {
   code: LocaleCode;
@@ -88,6 +111,29 @@ const EN: Record<MessageKey, string> = {
   "more.adminHint": "Moderation",
   "footer.tagline": "K-Help · Korea Life Platform for Foreign Residents",
   "footer.team": "NP Coders · Capstone Project",
+  "page.jobs.title": "Job Listings",
+  "page.jobs.desc": "Find foreigner-friendly jobs with filters that match your visa.",
+  "page.housing.title": "Housing Finder",
+  "page.housing.desc": "Compare rooms by deposit, rent and location.",
+  "page.guides.title": "Korea Living Guides",
+  "page.guides.desc": "Practical guides for visas, banking, healthcare and daily life.",
+  "page.community.title": "Community",
+  "page.community.desc": "Ask questions and share answers with other foreign residents.",
+  "page.chat.title": "Messages",
+  "page.chat.desc": "Your real-time conversations in one place.",
+  "page.ai.title": "AI Assistant",
+  "page.ai.desc": "Translate, summarize and write polite Korean messages.",
+  "page.inbox.title": "Inbox",
+  "page.inbox.desc": "Applications and inquiries on your job and housing posts.",
+  "page.login.title": "Welcome back",
+  "page.login.desc": "Sign in to post, apply for jobs and chat with other residents.",
+  "page.register.title": "Create your account",
+  "page.register.desc": "Join K-Help to post, apply, inquire and chat.",
+  "page.applications.title": "My applications",
+  "page.applications.desc": "Track every job you applied to.",
+  "page.postJob": "Post a job",
+  "page.listProperty": "List a property",
+  "page.newPost": "New post",
 };
 
 const KO: Record<MessageKey, string> = {
@@ -118,6 +164,29 @@ const KO: Record<MessageKey, string> = {
   "more.adminHint": "관리",
   "footer.tagline": "K-Help · 외국인 거주자를 위한 한국 생활 플랫폼",
   "footer.team": "NP Coders · 캡스톤 프로젝트",
+  "page.jobs.title": "채용 공고",
+  "page.jobs.desc": "비자에 맞는 조건으로 외국인 친화 채용을 찾으세요.",
+  "page.housing.title": "주거 찾기",
+  "page.housing.desc": "보증금, 월세, 위치로 매물을 비교하세요.",
+  "page.guides.title": "한국 생활 가이드",
+  "page.guides.desc": "비자, 은행, 의료, 일상 생활을 위한 실용 가이드.",
+  "page.community.title": "커뮤니티",
+  "page.community.desc": "다른 외국인 거주자와 질문하고 답을 나누세요.",
+  "page.chat.title": "메시지",
+  "page.chat.desc": "실시간 대화를 한곳에서 관리하세요.",
+  "page.ai.title": "AI 도우미",
+  "page.ai.desc": "번역, 요약, 정중한 한국어 메시지 작성.",
+  "page.inbox.title": "받은편지함",
+  "page.inbox.desc": "내 채용·주거 게시글의 지원과 문의.",
+  "page.login.title": "다시 오신 것을 환영합니다",
+  "page.login.desc": "로그인하여 게시, 채용 지원, 채팅을 이용하세요.",
+  "page.register.title": "계정 만들기",
+  "page.register.desc": "K-Help에 가입하여 게시, 지원, 문의, 채팅을 시작하세요.",
+  "page.applications.title": "내 지원 내역",
+  "page.applications.desc": "지원한 채용을 모두 추적하세요.",
+  "page.postJob": "채용 등록",
+  "page.listProperty": "매물 등록",
+  "page.newPost": "새 글",
 };
 
 const ZH: Record<MessageKey, string> = {

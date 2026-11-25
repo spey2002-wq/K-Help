@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { getHomeCopy } from "@/lib/i18n/home-copy";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
@@ -13,20 +15,21 @@ interface HomeCtaProps {
 /** Call-to-action buttons that change once the visitor is signed in. */
 export function HomeCta({ tone = "hero" }: HomeCtaProps) {
   const { isAuthenticated, loading } = useAuth();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
   const onHero = tone === "hero";
 
-  // Avoid flashing the wrong buttons while the session is being restored.
   if (loading) {
     return <div className="h-12" aria-hidden />;
   }
 
   const primary = isAuthenticated
-    ? { href: "/community", label: "Go to the community" }
-    : { href: "/register", label: "Create a free account" };
+    ? { href: "/community", label: copy.ctaCommunity }
+    : { href: "/register", label: copy.ctaCreate };
 
   const secondary = isAuthenticated
-    ? { href: "/info", label: "Browse living guides" }
-    : { href: "/login", label: "I already have an account" };
+    ? { href: "/info", label: copy.ctaGuides }
+    : { href: "/login", label: copy.ctaHaveAccount };
 
   return (
     <div className="flex flex-wrap gap-3">

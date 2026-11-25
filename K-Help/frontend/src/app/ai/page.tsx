@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import api, { errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
@@ -44,6 +45,7 @@ const RECIPIENTS = ["employer", "landlord", "clinic", "bank", "professor", "neig
 
 export default function AiAssistantPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
 
   const [mode, setMode] = useState<Mode>("translate");
   const [text, setText] = useState("");
@@ -93,11 +95,8 @@ export default function AiAssistantPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">AI Assistant</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Powered by the Spring Boot AI middleware. Your text is sent to the backend proxy, never
-          directly to the model provider.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("page.ai.title")}</h1>
+        <p className="mt-1 text-sm text-slate-600">{t("page.ai.desc")}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

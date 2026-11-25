@@ -11,6 +11,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { Pagination } from "@/components/ui/Pagination";
 import { Chip } from "@/components/jobs/Chip";
 import { BankDirectory } from "@/components/info/BankDirectory";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { guideCategoryLabel, timeAgo } from "@/lib/utils";
 
 const VISA_BY_COUNTRY: GuideCategory = "VISA_BY_COUNTRY";
@@ -29,6 +30,7 @@ const CATEGORIES: GuideCategory[] = [
 ];
 
 export default function InfoPage() {
+  const { t } = useLocale();
   const [guides, setGuides] = useState<PageResponse<Guide> | null>(null);
   const [page, setPage] = useState(0);
   const [category, setCategory] = useState("");
@@ -89,10 +91,8 @@ export default function InfoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Korea Living Guides</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Practical, curated information for visas, jobs, education, healthcare, banking, housing, transport and emergencies.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("page.guides.title")}</h1>
+        <p className="mt-1 text-sm text-slate-600">{t("page.guides.desc")}</p>
       </div>
 
       {!showCountryFilter && (

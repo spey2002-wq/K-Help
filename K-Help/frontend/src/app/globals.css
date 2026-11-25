@@ -124,26 +124,3 @@ select {
     animation-delay: 0.6s;
   }
 }
-
-/* Hide Google Translate chrome — our globe button is the only language UI. */
-#khelp-google-translate-element,
-.goog-te-banner-frame,
-.goog-te-balloon-frame,
-.skiptranslate,
-.goog-logo-link,
-.goog-te-gadget {
-  display: none !important;
-}
-
-body {
-  top: 0 !important;
-}
-
-iframe.goog-te-banner-frame {
-  display: none !important;
-}
-
-.goog-text-highlight {
-  background: none !important;
-  box-shadow: none !important;
-}

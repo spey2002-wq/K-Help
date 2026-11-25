@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
@@ -26,6 +27,7 @@ interface Item {
 export default function InboxPage() {
   const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const { t } = useLocale();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -128,11 +130,8 @@ export default function InboxPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Inbox</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Job applications and housing inquiries sent to posts you created. Chat replies to the
-          person directly.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("page.inbox.title")}</h1>
+        <p className="mt-1 text-sm text-slate-600">{t("page.inbox.desc")}</p>
       </div>
 
       {error && <ErrorState message={error} onRetry={load} />}

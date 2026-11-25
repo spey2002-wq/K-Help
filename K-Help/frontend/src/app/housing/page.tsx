@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { HousingListing, PageResponse, PropertyType } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { MyPosts } from "@/components/ui/MyPosts";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +29,7 @@ const PROPERTY_TYPES: PropertyType[] = [
 
 export default function HousingPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
 
   const [listings, setListings] = useState<PageResponse<HousingListing> | null>(null);
   const [page, setPage] = useState(0);
@@ -85,10 +87,8 @@ export default function HousingPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Housing Finder</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Compare rooms and apartments by deposit, monthly rent and location.
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("page.housing.title")}</h1>
+          <p className="mt-1 text-sm text-slate-600">{t("page.housing.desc")}</p>
         </div>
         {isAuthenticated && (
           <Link href="/housing/new">
