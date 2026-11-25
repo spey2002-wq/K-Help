@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { Guide } from "@/types";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge } from "@/components/ui/Badge";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { BankDirectory } from "@/components/info/BankDirectory";
@@ -14,6 +15,7 @@ import { guideCategoryLabel, timeAgo } from "@/lib/utils";
 export default function GuideDetailPage() {
   const params = useParams<{ id: string }>();
   const guideId = Number(params.id);
+  const { t } = useLocale();
 
   const [guide, setGuide] = useState<Guide | null>(null);
   const [related, setRelated] = useState<Guide[]>([]);
@@ -57,14 +59,14 @@ export default function GuideDetailPage() {
     };
   }, [category, country, guideId]);
 
-  if (loading) return <LoadingState message="Loading guide..." />;
+  if (loading) return <LoadingState message={t("ui.loadingGuide")} />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   if (!guide) return null;
 
   return (
     <article className="mx-auto max-w-3xl space-y-6">
       <Link href="/info" className="text-sm text-brand-600 hover:underline">
-        ← Back to guides
+        {t("detail.backGuides")}
       </Link>
 
       <div className="card p-8">
@@ -78,7 +80,7 @@ export default function GuideDetailPage() {
         <p className="mt-3 text-slate-600">{guide.summary}</p>
 
         <p className="mt-3 text-xs text-slate-500">
-          Updated {timeAgo(guide.updatedAt)} · {guide.viewCount} views
+          {t("ui.updated")} {timeAgo(guide.updatedAt)} · {guide.viewCount} {t("ui.views")}
         </p>
 
         <div className="mt-8 whitespace-pre-wrap leading-relaxed text-slate-700">
@@ -99,7 +101,7 @@ export default function GuideDetailPage() {
               rel="noopener noreferrer"
               className="text-sm font-medium text-brand-600 hover:underline"
             >
-              Official source ↗
+              {t("detail.officialSource")} ↗
             </a>
           </div>
         )}
@@ -110,7 +112,7 @@ export default function GuideDetailPage() {
       {related.length > 0 && (
         <section aria-labelledby="related-guides">
           <h2 id="related-guides" className="mb-3 font-semibold text-slate-900">
-            More in {guideCategoryLabel(guide.category)}
+            {t("detail.relatedGuides")}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {related.map((item) => (

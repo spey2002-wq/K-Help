@@ -115,7 +115,7 @@ export default function InfoPage() {
 
       <div className="card flex flex-wrap items-end gap-3 p-4">
         <Input
-          label="Search guides"
+          label={t("guides.search")}
           className="min-w-[220px] flex-1"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
@@ -125,12 +125,12 @@ export default function InfoPage() {
               setQuery(searchInput.trim());
             }
           }}
-          placeholder="e.g. ARC, bank account, health insurance"
+          placeholder={t("ui.searchPlaceholder")}
         />
 
         {showCountryFilter && (
           <Select
-            label="Your country"
+            label={t("guides.country")}
             className="w-56"
             value={country}
             onChange={(event) => {
@@ -138,7 +138,7 @@ export default function InfoPage() {
               setCountry(event.target.value);
             }}
           >
-            <option value="">All countries</option>
+            <option value="">{t("ui.all")}</option>
             {countries.map((name) => (
               <option key={name} value={name}>
                 {name}
@@ -153,17 +153,17 @@ export default function InfoPage() {
             setQuery(searchInput.trim());
           }}
         >
-          Search
+          {t("page.search")}
         </Button>
       </div>
 
       <div
         className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
         role="group"
-        aria-label="Guide topics"
+        aria-label={t("guides.allCategories")}
       >
         <Chip selected={category === ""} onClick={() => chooseCategory("")}>
-          All topics
+          {t("guides.allCategories")}
         </Chip>
         {CATEGORIES.map((value) => (
           <Chip key={value} selected={category === value} onClick={() => chooseCategory(value)}>
@@ -174,11 +174,11 @@ export default function InfoPage() {
       {error && <ErrorState message={error} onRetry={load} />}
 
       {loading ? (
-        <LoadingState message="Loading guides..." />
+        <LoadingState message={t("ui.loadingGuides")} />
       ) : !guides || guides.content.length === 0 ? (
         <EmptyState
-          title="No guides found"
-          description="Try a different topic or search term."
+          title={t("ui.noGuides")}
+          description={t("ui.noGuidesHint")}
         />
       ) : (
         <>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import type { Profile, User } from "@/types";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
@@ -15,6 +16,7 @@ import { MyPostsSection } from "@/components/profile/MyPostsSection";
 export default function ProfilePage() {
   const router = useRouter();
   const { isAuthenticated, loading: authLoading, refreshUser } = useAuth();
+  const { t } = useLocale();
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function ProfilePage() {
   );
 
   if (authLoading || (loading && !loadError)) {
-    return <LoadingState message="Loading your profile..." />;
+    return <LoadingState message={t("ui.loadingProfile")} />;
   }
   if (loadError) return <ErrorState message={loadError} onRetry={load} />;
   if (!profile) return null;
@@ -92,7 +94,7 @@ export default function ProfilePage() {
               onClick={() => setError("")}
               className="font-medium underline underline-offset-2"
             >
-              Dismiss
+              {t("ui.dismiss")}
             </button>
           )}
         </div>

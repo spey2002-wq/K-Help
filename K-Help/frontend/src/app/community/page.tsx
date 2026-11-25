@@ -116,26 +116,26 @@ export default function CommunityPage() {
         </div>
         {isAuthenticated ? (
           <Button onClick={() => setComposerOpen((open) => !open)}>
-            {composerOpen ? "Cancel" : t("page.newPost")}
+            {composerOpen ? t("page.cancel") : t("page.newPost")}
           </Button>
         ) : (
           <Link href="/login">
-            <Button variant="outline">Sign in to post</Button>
+            <Button variant="outline">{t("nav.signIn")}</Button>
           </Link>
         )}
       </div>
 
       {composerOpen && (
         <div className="card space-y-4 p-6">
-          <h2 className="font-semibold text-slate-900">Create a post</h2>
+          <h2 className="font-semibold text-slate-900">{t("community.writePost")}</h2>
           <Input
-            label="Title"
+            label={t("community.title")}
             value={draft.title}
             onChange={(event) => setDraft({ ...draft, title: event.target.value })}
-            placeholder="What would you like to discuss?"
+            placeholder={t("community.title")}
           />
           <Select
-            label="Category"
+            label={t("community.category")}
             value={draft.category}
             onChange={(event) =>
               setDraft({ ...draft, category: event.target.value as PostCategory })
@@ -148,14 +148,14 @@ export default function CommunityPage() {
             ))}
           </Select>
           <Textarea
-            label="Content"
+            label={t("community.content")}
             value={draft.content}
             onChange={(event) => setDraft({ ...draft, content: event.target.value })}
-            placeholder="Share the details..."
+            placeholder={t("community.content")}
           />
           <div className="flex justify-end">
             <Button onClick={handleCreate} loading={submitting}>
-              Publish
+              {t("community.publish")}
             </Button>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function CommunityPage() {
 
       <div className="card flex flex-wrap items-end gap-3 p-4">
         <Input
-          label="Search"
+          label={t("page.search")}
           className="min-w-[200px] flex-1"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
@@ -173,10 +173,10 @@ export default function CommunityPage() {
               setQuery(searchInput.trim());
             }
           }}
-          placeholder="Search titles and content"
+          placeholder={t("ui.searchPlaceholder")}
         />
         <Select
-          label="Category"
+          label={t("community.category")}
           className="w-48"
           value={category}
           onChange={(event) => {
@@ -184,7 +184,7 @@ export default function CommunityPage() {
             setCategory(event.target.value);
           }}
         >
-          <option value="">All categories</option>
+          <option value="">{t("guides.allCategories")}</option>
           {CATEGORIES.map((value) => (
             <option key={value} value={value}>
               {humanize(value)}
@@ -198,18 +198,18 @@ export default function CommunityPage() {
             setQuery(searchInput.trim());
           }}
         >
-          Search
+          {t("page.search")}
         </Button>
       </div>
 
       {error && <ErrorState message={error} onRetry={load} />}
 
       {loading ? (
-        <LoadingState message="Loading posts..." />
+        <LoadingState message={t("ui.loadingPosts")} />
       ) : !posts || posts.content.length === 0 ? (
         <EmptyState
-          title="No posts yet"
-          description="Be the first to start a discussion in this category."
+          title={t("ui.noPosts")}
+          description={t("ui.noPostsHint")}
         />
       ) : (
         <>

@@ -41,11 +41,11 @@ export default function MyApplicationsPage() {
   if (!isAuthenticated) {
     return (
       <EmptyState
-        title="Sign in required"
-        description="Sign in to track your job applications."
+        title={t("ui.signInRequired")}
+        description={t("page.applications.desc")}
         action={
           <Link href="/login">
-            <Button>Sign in</Button>
+            <Button>{t("nav.signIn")}</Button>
           </Link>
         }
       />
@@ -60,21 +60,21 @@ export default function MyApplicationsPage() {
           <p className="mt-1 text-sm text-slate-600">{t("page.applications.desc")}</p>
         </div>
         <Link href="/jobs" className="text-sm text-brand-600 hover:underline">
-          Browse jobs
+          {t("page.browseJobs")}
         </Link>
       </div>
 
       {error && <ErrorState message={error} onRetry={load} />}
 
       {loading ? (
-        <LoadingState message="Loading applications..." />
+        <LoadingState message={t("ui.loadingApplications")} />
       ) : applications.length === 0 ? (
         <EmptyState
-          title="No applications yet"
-          description="Apply to a job listing and it will show up here."
+          title={t("ui.noApplications")}
+          description={t("ui.noApplicationsHint")}
           action={
             <Link href="/jobs">
-              <Button>Find a job</Button>
+              <Button>{t("page.browseJobs")}</Button>
             </Link>
           }
         />
@@ -92,11 +92,11 @@ export default function MyApplicationsPage() {
                   </Link>
                   <p className="mt-1 text-sm text-slate-600">{application.company}</p>
                   <p className="mt-2 text-xs text-slate-500">
-                    Applied {timeAgo(application.createdAt)}
+                    {t("detail.applied")} {timeAgo(application.createdAt)}
                   </p>
                   {application.employerNote && (
                     <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                      Employer note: {application.employerNote}
+                      {t("detail.employerNote")}: {application.employerNote}
                     </p>
                   )}
                 </div>

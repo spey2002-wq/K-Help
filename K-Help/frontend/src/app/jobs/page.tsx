@@ -114,7 +114,7 @@ export default function JobsPage() {
         </div>
         {isAuthenticated && (
           <Link href="/jobs/new">
-            <Button>Post a job</Button>
+            <Button>{t("page.postJob")}</Button>
           </Link>
         )}
       </div>
@@ -134,10 +134,10 @@ export default function JobsPage() {
         <div
           className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
           role="group"
-          aria-label="Job categories"
+          aria-label={t("jobs.categories")}
         >
           <Chip selected={filters.categories.length === 0} onClick={() => patch({ categories: [] })}>
-            All jobs
+            {t("jobs.allJobs")}
           </Chip>
           {CATEGORY_OPTIONS.map((option) => (
             <Chip
@@ -151,15 +151,15 @@ export default function JobsPage() {
         </div>
 
         {/* Quick filters */}
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Quick filters">
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("jobs.quickFilters")}>
           <Chip selected={filters.urgent} onClick={() => patch({ urgent: !filters.urgent })}>
-            Hiring now
+            {t("jobs.hiringNow")}
           </Chip>
           <Chip
             selected={filters.koreanRequired === "false"}
             onClick={() => patch({ koreanRequired: filters.koreanRequired === "false" ? "" : "false" })}
           >
-            No Korean needed
+            {t("jobs.noKorean")}
           </Chip>
           <Chip
             selected={filters.experienceLevel === "NO_EXPERIENCE"}
@@ -167,7 +167,7 @@ export default function JobsPage() {
               patch({ experienceLevel: filters.experienceLevel === "NO_EXPERIENCE" ? "" : "NO_EXPERIENCE" })
             }
           >
-            Beginner friendly
+            {t("jobs.beginner")}
           </Chip>
           <Chip
             selected={sameSet(filters.availableDays, WEEKEND)}
@@ -175,7 +175,7 @@ export default function JobsPage() {
               patch({ availableDays: sameSet(filters.availableDays, WEEKEND) ? [] : [...WEEKEND] })
             }
           >
-            Weekend only
+            {t("jobs.weekend")}
           </Chip>
           <Chip
             selected={sameSet(filters.workPeriods, SHORT_TERM)}
@@ -183,25 +183,25 @@ export default function JobsPage() {
               patch({ workPeriods: sameSet(filters.workPeriods, SHORT_TERM) ? [] : [...SHORT_TERM] })
             }
           >
-            Short-term
+            {t("jobs.shortTerm")}
           </Chip>
           <Chip
             selected={filters.mealsProvided}
             onClick={() => patch({ mealsProvided: !filters.mealsProvided })}
           >
-            Meals provided
+            {t("jobs.meals")}
           </Chip>
           <Chip
             selected={filters.housingProvided}
             onClick={() => patch({ housingProvided: !filters.housingProvided })}
           >
-            Housing
+            {t("jobs.housing")}
           </Chip>
           <Chip
             selected={filters.visaSponsorship}
             onClick={() => patch({ visaSponsorship: !filters.visaSponsorship })}
           >
-            Visa sponsorship
+            {t("jobs.visa")}
           </Chip>
 
           <Button
@@ -211,7 +211,7 @@ export default function JobsPage() {
             aria-expanded={showPanel}
             onClick={() => setShowPanel((open) => !open)}
           >
-            {showPanel ? "Hide filters" : "All filters"}
+            {showPanel ? t("ui.hideFilters") : t("ui.allFilters")}
             {panelCount > 0 && (
               <span className="badge bg-brand-100 text-brand-700">{panelCount}</span>
             )}
@@ -291,15 +291,15 @@ export default function JobsPage() {
       )}
 
       {loading ? (
-        <LoadingState message="Loading jobs..." />
+        <LoadingState message={t("ui.loadingJobs")} />
       ) : !jobs || jobs.content.length === 0 ? (
         <EmptyState
-          title="No jobs match your filters"
-          description="Try removing a few filters or searching a different keyword."
+          title={t("ui.noJobs")}
+          description={t("ui.noJobsHint")}
           action={
             hasAnyFilter(applied) ? (
               <Button variant="outline" onClick={clearAll}>
-                Clear all filters
+                {t("ui.clearFilters")}
               </Button>
             ) : undefined
           }

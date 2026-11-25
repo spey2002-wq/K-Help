@@ -92,7 +92,7 @@ export default function HousingPage() {
         </div>
         {isAuthenticated && (
           <Link href="/housing/new">
-            <Button>List a property</Button>
+            <Button>{t("page.listProperty")}</Button>
           </Link>
         )}
       </div>
@@ -196,11 +196,11 @@ export default function HousingPage() {
       {error && <ErrorState message={error} onRetry={load} />}
 
       {loading ? (
-        <LoadingState message="Loading properties..." />
+        <LoadingState message={t("ui.loadingHousing")} />
       ) : !listings || listings.content.length === 0 ? (
         <EmptyState
-          title="No properties match your filters"
-          description="Try increasing your deposit or rent limits."
+          title={t("ui.noHousing")}
+          description={t("ui.noHousingHint")}
         />
       ) : (
         <>

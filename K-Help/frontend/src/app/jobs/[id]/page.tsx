@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { JobListing } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -25,6 +26,7 @@ export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
   const jobId = Number(params.id);
   const { user, isAuthenticated, isAdmin } = useAuth();
+  const { t } = useLocale();
 
   const [job, setJob] = useState<JobListing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +61,7 @@ export default function JobDetailPage() {
         coverLetter: application.coverLetter || undefined,
         resumeUrl: application.resumeUrl || undefined,
       });
-      setNotice("Your application has been submitted.");
+      setNotice(t("detail.applicationSubmitted"));
       setApplyOpen(false);
       setApplication({ coverLetter: "", resumeUrl: "" });
     } catch (err) {
@@ -69,7 +71,7 @@ export default function JobDetailPage() {
     }
   }
 
-  if (loading) return <LoadingState message="Loading job..." />;
+  if (loading) return <LoadingState message={t("ui.loadingJob")} />;
   if (error && !job) return <ErrorState message={error} onRetry={load} />;
   if (!job) return null;
 
@@ -81,8 +83,8 @@ export default function JobDetailPage() {
     job.salaryMin < MIN_HOURLY_WAGE_KRW;
 
   const perks = [
-    job.mealsProvided && "Meals provided",
-    job.housingProvided && "Housing / dormitory",
+    job.mealsProvided && t("jobs.meals"),
+    job.housingProvided && t("jobs.housing"),
     job.insuranceProvided && "4 major insurances",
     job.transportProvided && "Transport pay",
   ].filter(Boolean) as string[];
@@ -90,7 +92,7 @@ export default function JobDetailPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Link href="/jobs" className="text-sm text-brand-600 hover:underline">
-        ← Back to jobs
+        {t("detail.backJobs")}
       </Link>
 
       {error && <ErrorState message={error} />}
@@ -102,11 +104,11 @@ export default function JobDetailPage() {
 
       <article className="card p-8">
         <div className="flex flex-wrap gap-2">
-          {job.urgent && <Badge tone="red">Hiring now</Badge>}
+          {job.urgent && <Badge tone="red">{t("jobs.hiringNow")}</Badge>}
           {job.category && <Badge tone="slate">{categoryLabel(job.category)}</Badge>}
           <Badge tone="brand">{humanize(job.jobType)}</Badge>
-          {job.visaSponsorship && <Badge tone="green">Visa sponsorship</Badge>}
-          {!job.koreanRequired && <Badge tone="purple">No Korean needed</Badge>}
+          {job.visaSponsorship && <Badge tone="green">{t("jobs.visa")}</Badge>}
+          {!job.koreanRequired && <Badge tone="purple">{t("jobs.noKorean")}</Badge>}
           <Badge tone={statusTone(job.status)}>{humanize(job.status)}</Badge>
         </div>
 
@@ -118,7 +120,7 @@ export default function JobDetailPage() {
 
         <div className="mt-6 grid gap-4 rounded-xl bg-slate-50 p-5 sm:grid-cols-2">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Salary</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500">{t("detail.salary")}</p>
             <p className="mt-1 font-semibold text-slate-900">
               {formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryPeriod)}
             </p>
@@ -171,23 +173,23 @@ export default function JobDetailPage() {
             </div>
           )}
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Deadline</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500">{t("detail.deadline")}</p>
             <p className="mt-1 font-semibold text-slate-900">
-              {job.deadline ? new Date(job.deadline).toLocaleDateString() : "Open until filled"}
+              {job.deadline ? new Date(job.deadline).toLocaleDateString() : t("detail.openUntilFilled")}
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Posted by</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500">{t("detail.postedBy")}</p>
             <p className="mt-1 font-semibold text-slate-900">{job.postedByUsername}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Posted</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500">{t("ui.posted")}</p>
             <p className="mt-1 font-semibold text-slate-900">{timeAgo(job.createdAt)}</p>
           </div>
         </div>
 
         <section className="mt-8">
-          <h2 className="font-semibold text-slate-900">Description</h2>
+          <h2 className="font-semibold text-slate-900">{t("detail.description")}</h2>
           <div className="mt-2 whitespace-pre-wrap leading-relaxed text-slate-700">
             {job.description}
           </div>
@@ -195,7 +197,7 @@ export default function JobDetailPage() {
 
         {job.requirements && (
           <section className="mt-6">
-            <h2 className="font-semibold text-slate-900">Requirements</h2>
+            <h2 className="font-semibold text-slate-900">{t("detail.requirements")}</h2>
             <div className="mt-2 whitespace-pre-wrap leading-relaxed text-slate-700">
               {job.requirements}
             </div>
@@ -238,22 +240,18 @@ export default function JobDetailPage() {
 
         <div className="mt-8 border-t border-slate-200 pt-6">
           {isOwner ? (
-            <p className="text-sm text-slate-600">
-              This is your listing. Applications from other members are below.
-            </p>
+            <p className="text-sm text-slate-600">{t("detail.yourListing")}</p>
           ) : isAuthenticated ? (
             job.status === "APPROVED" ? (
               <Button onClick={() => setApplyOpen((open) => !open)}>
-                {applyOpen ? "Cancel" : "Apply for this job"}
+                {applyOpen ? t("page.cancel") : t("detail.applyForJob")}
               </Button>
             ) : (
-              <p className="text-sm text-slate-500">
-                This listing is not open for applications.
-              </p>
+              <p className="text-sm text-slate-500">{t("detail.notOpen")}</p>
             )
           ) : (
             <Link href="/login">
-              <Button>Sign in to apply</Button>
+              <Button>{t("detail.signInToApply")}</Button>
             </Link>
           )}
         </div>
@@ -263,9 +261,9 @@ export default function JobDetailPage() {
 
       {applyOpen && (
         <div className="card space-y-4 p-6">
-          <h2 className="font-semibold text-slate-900">Submit your application</h2>
+          <h2 className="font-semibold text-slate-900">{t("detail.submitApplication")}</h2>
           <Textarea
-            label="Cover letter"
+            label={t("detail.coverLetter")}
             value={application.coverLetter}
             onChange={(event) =>
               setApplication({ ...application, coverLetter: event.target.value })
@@ -273,7 +271,7 @@ export default function JobDetailPage() {
             placeholder="Tell the employer why you are a good fit..."
           />
           <Input
-            label="Resume URL (optional)"
+            label={t("detail.resumeUrl")}
             value={application.resumeUrl}
             onChange={(event) =>
               setApplication({ ...application, resumeUrl: event.target.value })
@@ -282,7 +280,7 @@ export default function JobDetailPage() {
           />
           <div className="flex justify-end">
             <Button onClick={handleApply} loading={submitting}>
-              Submit application
+              {t("detail.submitApplication")}
             </Button>
           </div>
         </div>

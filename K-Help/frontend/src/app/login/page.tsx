@@ -45,17 +45,17 @@ export default function LoginPage() {
           {error && <ErrorState message={error} />}
 
           <Input
-            label="Username or email"
+            label={t("page.usernameEmail")}
             name="username"
             autoComplete="username"
             required
             value={username}
             onChange={(event) => setUsername(event.target.value)}
-            placeholder="Your username or email"
+            placeholder={t("page.usernameEmail")}
           />
 
           <Input
-            label="Password"
+            label={t("page.password")}
             name="password"
             type="password"
             autoComplete="current-password"
@@ -66,14 +66,14 @@ export default function LoginPage() {
           />
 
           <Button type="submit" loading={submitting} className="w-full">
-            Sign in
+            {t("auth.loginButton")}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">
-          New to K-Help?{" "}
+          {t("page.noAccount")}{" "}
           <Link href="/register" className="font-medium text-brand-600 hover:underline">
-            Create an account
+            {t("nav.createAccount")}
           </Link>
         </p>
       </div>

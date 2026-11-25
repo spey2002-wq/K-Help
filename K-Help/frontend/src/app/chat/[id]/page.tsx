@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { ChatMessage } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { useChatSocket } from "@/lib/use-chat-socket";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +18,7 @@ export default function ConversationPage() {
   const params = useParams<{ id: string }>();
   const conversationId = Number(params.id);
   const { user } = useAuth();
+  const { t } = useLocale();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,10 +91,10 @@ export default function ConversationPage() {
     <div className="mx-auto flex max-w-3xl flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <Link href="/chat" className="text-sm text-brand-600 hover:underline">
-          ← All conversations
+          {t("detail.backChat")}
         </Link>
         <Badge tone={connected ? "green" : "amber"}>
-          {connected ? "Live" : "Offline · messages still send"}
+          {connected ? t("detail.live") : t("detail.offline")}
         </Badge>
       </div>
 
@@ -100,13 +102,13 @@ export default function ConversationPage() {
 
       <div className="card flex h-[65vh] flex-col">
         {loading ? (
-          <LoadingState message="Loading messages..." />
+          <LoadingState message={t("ui.loadingMessages")} />
         ) : (
           <>
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
               {messages.length === 0 && (
                 <p className="py-10 text-center text-sm text-slate-500">
-                  No messages yet. Say hello!
+                  {t("detail.noMessages")}
                 </p>
               )}
 
@@ -190,7 +192,7 @@ export default function ConversationPage() {
                 </label>
 
                 <Button onClick={handleSend} disabled={!draft.trim()}>
-                  Send
+                  {t("detail.send")}
                 </Button>
               </div>
             </div>

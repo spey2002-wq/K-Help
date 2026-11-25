@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { HousingListing } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -17,6 +18,7 @@ export default function HousingDetailPage() {
   const params = useParams<{ id: string }>();
   const listingId = Number(params.id);
   const { user, isAuthenticated, isAdmin } = useAuth();
+  const { t } = useLocale();
 
   const [listing, setListing] = useState<HousingListing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ export default function HousingDetailPage() {
         contactPhone: inquiry.contactPhone || undefined,
         preferredMoveInDate: inquiry.preferredMoveInDate || undefined,
       });
-      setNotice("Your inquiry has been sent to the property owner.");
+      setNotice(t("detail.inquirySent"));
       setInquiryOpen(false);
       setInquiry({ message: "", contactPhone: "", preferredMoveInDate: "" });
     } catch (err) {
@@ -68,30 +70,30 @@ export default function HousingDetailPage() {
     }
   }
 
-  if (loading) return <LoadingState message="Loading property..." />;
+  if (loading) return <LoadingState message={t("ui.loadingProperty")} />;
   if (error && !listing) return <ErrorState message={error} onRetry={load} />;
   if (!listing) return null;
 
   const details = [
-    { label: "Deposit", value: formatKrw(listing.depositAmount) },
-    { label: "Monthly rent", value: formatKrw(listing.monthlyRent) },
-    { label: "Maintenance fee", value: formatKrw(listing.maintenanceFee) },
-    { label: "Area", value: listing.areaSqm ? `${listing.areaSqm} m²` : "-" },
-    { label: "Rooms", value: listing.roomCount ?? "-" },
-    { label: "Bathrooms", value: listing.bathroomCount ?? "-" },
-    { label: "Floor", value: listing.floorNumber ?? "-" },
+    { label: t("detail.deposit"), value: formatKrw(listing.depositAmount) },
+    { label: t("detail.monthlyRent"), value: formatKrw(listing.monthlyRent) },
+    { label: t("detail.maintenance"), value: formatKrw(listing.maintenanceFee) },
+    { label: t("detail.area"), value: listing.areaSqm ? `${listing.areaSqm} m²` : "-" },
+    { label: t("detail.rooms"), value: listing.roomCount ?? "-" },
+    { label: t("detail.bathrooms"), value: listing.bathroomCount ?? "-" },
+    { label: t("detail.floor"), value: listing.floorNumber ?? "-" },
     {
-      label: "Available from",
+      label: t("detail.availableFrom"),
       value: listing.availableFrom
         ? new Date(listing.availableFrom).toLocaleDateString()
-        : "Immediately",
+        : t("detail.immediately"),
     },
   ];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Link href="/housing" className="text-sm text-brand-600 hover:underline">
-        ← Back to housing
+        {t("detail.backHousing")}
       </Link>
 
       {error && <ErrorState message={error} />}
@@ -111,9 +113,9 @@ export default function HousingDetailPage() {
         <div className="p-8">
           <div className="flex flex-wrap gap-2">
             <Badge tone="brand">{humanize(listing.propertyType)}</Badge>
-            {listing.furnished && <Badge tone="green">Furnished</Badge>}
-            {listing.petFriendly && <Badge tone="purple">Pet friendly</Badge>}
-            {listing.utilitiesIncluded && <Badge tone="amber">Utilities included</Badge>}
+            {listing.furnished && <Badge tone="green">{t("housing.furnished")}</Badge>}
+            {listing.petFriendly && <Badge tone="purple">{t("housing.pets")}</Badge>}
+            {listing.utilitiesIncluded && <Badge tone="amber">{t("detail.utilities")}</Badge>}
             <Badge tone={statusTone(listing.status)}>{humanize(listing.status)}</Badge>
           </div>
 
@@ -126,8 +128,8 @@ export default function HousingDetailPage() {
           </p>
 
           <p className="mt-2 text-xs text-slate-500">
-            Listed by {listing.listedByUsername} · {timeAgo(listing.createdAt)} ·{" "}
-            {listing.viewCount} views
+            {t("detail.postedBy")} {listing.listedByUsername} · {timeAgo(listing.createdAt)} ·{" "}
+            {listing.viewCount} {t("ui.views")}
           </p>
 
           <div className="mt-6 grid gap-4 rounded-xl bg-slate-50 p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -140,7 +142,7 @@ export default function HousingDetailPage() {
           </div>
 
           <section className="mt-8">
-            <h2 className="font-semibold text-slate-900">Description</h2>
+            <h2 className="font-semibold text-slate-900">{t("detail.description")}</h2>
             <div className="mt-2 whitespace-pre-wrap leading-relaxed text-slate-700">
               {listing.description}
             </div>
@@ -148,22 +150,18 @@ export default function HousingDetailPage() {
 
           <div className="mt-8 border-t border-slate-200 pt-6">
             {user && (user.id === listing.listedById || isAdmin) ? (
-              <p className="text-sm text-slate-600">
-                This is your listing. Inquiries from other members are below.
-              </p>
+              <p className="text-sm text-slate-600">{t("detail.yourListing")}</p>
             ) : isAuthenticated ? (
               listing.status === "AVAILABLE" ? (
                 <Button onClick={() => setInquiryOpen((open) => !open)}>
-                  {inquiryOpen ? "Cancel" : "Send inquiry"}
+                  {inquiryOpen ? t("page.cancel") : t("detail.sendInquiry")}
                 </Button>
               ) : (
-                <p className="text-sm text-slate-500">
-                  This property is not currently available.
-                </p>
+                <p className="text-sm text-slate-500">{t("detail.notOpen")}</p>
               )
             ) : (
               <Link href="/login">
-                <Button>Sign in to inquire</Button>
+                <Button>{t("detail.signInToInquire")}</Button>
               </Link>
             )}
           </div>
@@ -176,22 +174,22 @@ export default function HousingDetailPage() {
 
       {inquiryOpen && (
         <div className="card space-y-4 p-6">
-          <h2 className="font-semibold text-slate-900">Contact the owner</h2>
+          <h2 className="font-semibold text-slate-900">{t("detail.sendInquiry")}</h2>
           <Textarea
-            label="Message"
+            label={t("detail.message")}
             value={inquiry.message}
             onChange={(event) => setInquiry({ ...inquiry, message: event.target.value })}
             placeholder="Introduce yourself and ask about the property..."
           />
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
-              label="Your phone number (optional)"
+              label={t("detail.contactPhone")}
               value={inquiry.contactPhone}
               onChange={(event) => setInquiry({ ...inquiry, contactPhone: event.target.value })}
               placeholder="010-0000-0000"
             />
             <Input
-              label="Preferred move-in date"
+              label={t("detail.moveInDate")}
               type="date"
               value={inquiry.preferredMoveInDate}
               onChange={(event) =>
@@ -201,7 +199,7 @@ export default function HousingDetailPage() {
           </div>
           <div className="flex justify-end">
             <Button onClick={handleInquiry} loading={submitting}>
-              Send inquiry
+              {t("detail.sendInquiry")}
             </Button>
           </div>
         </div>

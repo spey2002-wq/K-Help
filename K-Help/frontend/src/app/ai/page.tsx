@@ -12,23 +12,7 @@ import { ErrorState } from "@/components/ui/Feedback";
 
 type Mode = "translate" | "summarize" | "polite";
 
-const MODES: { id: Mode; label: string; description: string }[] = [
-  {
-    id: "translate",
-    label: "Translate",
-    description: "Translate Korean or any language into the language you read best.",
-  },
-  {
-    id: "summarize",
-    label: "Summarize",
-    description: "Turn a long Korean notice or document into clear key points.",
-  },
-  {
-    id: "polite",
-    label: "Polite message",
-    description: "Rewrite your message in natural, respectful Korean.",
-  },
-];
+const MODE_IDS: Mode[] = ["translate", "summarize", "polite"];
 
 const LANGUAGES = [
   { code: "en", label: "English" },
@@ -100,44 +84,53 @@ export default function AiAssistantPage() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        {MODES.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            onClick={() => {
-              setMode(option.id);
-              setResult("");
-              setError("");
-            }}
-            className={`card p-4 text-left transition-colors ${
-              mode === option.id ? "border-brand-500 ring-1 ring-brand-500" : "hover:bg-slate-50"
-            }`}
-          >
-            <p className="font-medium text-slate-900">{option.label}</p>
-            <p className="mt-1 text-xs leading-relaxed text-slate-600">{option.description}</p>
-          </button>
-        ))}
+        {MODE_IDS.map((id) => {
+          const label =
+            id === "translate" ? t("ai.translate") : id === "summarize" ? t("ai.summarize") : t("ai.polite");
+          const description =
+            id === "translate"
+              ? t("ai.translateDesc")
+              : id === "summarize"
+                ? t("ai.summarizeDesc")
+                : t("ai.politeDesc");
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => {
+                setMode(id);
+                setResult("");
+                setError("");
+              }}
+              className={`card p-4 text-left transition-colors ${
+                mode === id ? "border-brand-500 ring-1 ring-brand-500" : "hover:bg-slate-50"
+              }`}
+            >
+              <p className="font-medium text-slate-900">{label}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-600">{description}</p>
+            </button>
+          );
+        })}
       </div>
 
       <div className="card space-y-4 p-6">
         {!isAuthenticated && (
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            The AI assistant requires an account.{" "}
+            {t("ui.signInRequired")}{" "}
             <Link href="/login" className="font-medium text-brand-600 hover:underline">
-              Sign in
-            </Link>{" "}
-            to continue.
+              {t("nav.signIn")}
+            </Link>
           </div>
         )}
 
         {mode === "translate" && (
           <div className="grid gap-4 sm:grid-cols-2">
             <Select
-              label="From"
+              label={t("ai.sourceLang")}
               value={sourceLanguage}
               onChange={(event) => setSourceLanguage(event.target.value)}
             >
-              <option value="">Detect automatically</option>
+              <option value="">{t("ui.all")}</option>
               {LANGUAGES.map((language) => (
                 <option key={language.code} value={language.code}>
                   {language.label}
@@ -145,7 +138,7 @@ export default function AiAssistantPage() {
               ))}
             </Select>
             <Select
-              label="To"
+              label={t("ai.targetLang")}
               value={targetLanguage}
               onChange={(event) => setTargetLanguage(event.target.value)}
             >
@@ -198,16 +191,10 @@ export default function AiAssistantPage() {
         )}
 
         <Textarea
-          label="Your text"
+          label={t("ai.input")}
           value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder={
-            mode === "summarize"
-              ? "Paste a Korean notice or document..."
-              : mode === "polite"
-                ? "I need to tell my landlord the heating is broken."
-                : "Paste the text you want to translate..."
-          }
+          placeholder={t("ai.input")}
           className="min-h-[160px]"
         />
 
@@ -215,12 +202,14 @@ export default function AiAssistantPage() {
 
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-slate-500">
-            {isAuthenticated
-              ? "Signed in — requests are authenticated."
-              : "Sign in to use the AI assistant."}
+            {isAuthenticated ? t("nav.signIn") : t("ui.signInRequired")}
           </p>
           <Button onClick={handleRun} loading={loading} disabled={!text.trim() || !isAuthenticated}>
-            {mode === "translate" ? "Translate" : mode === "summarize" ? "Summarize" : "Rewrite"}
+            {mode === "translate"
+              ? t("ai.translate")
+              : mode === "summarize"
+                ? t("ai.summarize")
+                : t("ai.polite")}
           </Button>
         </div>
       </div>
@@ -228,7 +217,7 @@ export default function AiAssistantPage() {
       {result && (
         <div className="card p-6">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-semibold text-slate-900">Result</h2>
+            <h2 className="font-semibold text-slate-900">{t("ai.result")}</h2>
             {mock && <Badge tone="amber">Mock mode — no API key configured</Badge>}
           </div>
 

@@ -110,17 +110,17 @@ export default function InboxPage() {
   }
 
   if (authLoading || (loading && isAuthenticated)) {
-    return <LoadingState message="Loading your inbox..." />;
+    return <LoadingState message={t("ui.loadingInbox")} />;
   }
 
   if (!isAuthenticated) {
     return (
       <EmptyState
-        title="Sign in required"
-        description="Sign in to see applications and housing inquiries sent to your posts."
+        title={t("ui.signInRequired")}
+        description={t("page.inbox.desc")}
         action={
           <Link href="/login">
-            <Button>Sign in</Button>
+            <Button>{t("nav.signIn")}</Button>
           </Link>
         }
       />
@@ -138,8 +138,8 @@ export default function InboxPage() {
 
       {items.length === 0 ? (
         <EmptyState
-          title="No messages yet"
-          description="When someone applies to your job or sends a housing inquiry, it shows up here."
+          title={t("ui.noInbox")}
+          description={t("ui.noInboxHint")}
         />
       ) : (
         <ul className="card divide-y divide-slate-100 px-5">

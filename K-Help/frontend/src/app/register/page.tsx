@@ -48,11 +48,11 @@ export default function RegisterPage() {
     setError("");
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("auth.passwordsMismatch"));
       return;
     }
     if (form.password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError(t("auth.passwordTooShort"));
       return;
     }
 
@@ -85,7 +85,7 @@ export default function RegisterPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
-              label="Username"
+              label={t("auth.username")}
               name="username"
               required
               minLength={3}
@@ -94,7 +94,7 @@ export default function RegisterPage() {
               placeholder="yourname"
             />
             <Input
-              label="Full name"
+              label={t("auth.fullName")}
               name="fullName"
               value={form.fullName}
               onChange={(event) => update("fullName", event.target.value)}
@@ -103,7 +103,7 @@ export default function RegisterPage() {
           </div>
 
           <Input
-            label="Email"
+            label={t("auth.email")}
             name="email"
             type="email"
             required
@@ -114,19 +114,19 @@ export default function RegisterPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
-              label="Nationality"
+              label={t("auth.nationality")}
               name="nationality"
               value={form.nationality}
               onChange={(event) => update("nationality", event.target.value)}
               placeholder="Nepal"
             />
             <Select
-              label="Visa type"
+              label={t("auth.visaType")}
               name="visaType"
               value={form.visaType}
               onChange={(event) => update("visaType", event.target.value)}
             >
-              <option value="">Prefer not to say</option>
+              <option value="">{t("auth.preferNotSay")}</option>
               {VISA_TYPES.map((visa) => (
                 <option key={visa.value} value={visa.value}>
                   {visa.label}
@@ -137,17 +137,17 @@ export default function RegisterPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
-              label="Password"
+              label={t("page.password")}
               name="password"
               type="password"
               required
               minLength={8}
               value={form.password}
               onChange={(event) => update("password", event.target.value)}
-              hint="At least 8 characters"
+              hint={t("auth.passwordHint")}
             />
             <Input
-              label="Confirm password"
+              label={t("auth.confirmPassword")}
               name="confirmPassword"
               type="password"
               required
@@ -157,14 +157,14 @@ export default function RegisterPage() {
           </div>
 
           <Button type="submit" loading={submitting} className="w-full">
-            Create account
+            {t("auth.registerButton")}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">
-          Already registered?{" "}
+          {t("page.haveAccount")}{" "}
           <Link href="/login" className="font-medium text-brand-600 hover:underline">
-            Sign in
+            {t("nav.signIn")}
           </Link>
         </p>
       </div>

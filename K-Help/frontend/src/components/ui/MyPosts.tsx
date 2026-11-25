@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { humanize, timeAgo } from "@/lib/utils";
 
@@ -16,12 +17,6 @@ interface Item {
   createdAt: string;
 }
 
-const LABELS: Record<string, string> = {
-  PENDING: "Pending approval",
-  APPROVED: "Live",
-  AVAILABLE: "Live",
-};
-
 /**
  * Shows the signed-in member the listings they posted themselves, including
  * ones that are still waiting for an administrator to approve them (those are
@@ -29,7 +24,14 @@ const LABELS: Record<string, string> = {
  */
 export function MyPosts({ kind }: { kind: Kind }) {
   const { isAuthenticated } = useAuth();
+  const { t } = useLocale();
   const [items, setItems] = useState<Item[]>([]);
+  const statusLabel = (status: string) => {
+    if (status === "PENDING") return t("ui.pending");
+    if (status === "APPROVED" || status === "AVAILABLE") return t("ui.approved");
+    if (status === "REJECTED") return t("ui.rejected");
+    return humanize(status);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -56,13 +58,12 @@ export function MyPosts({ kind }: { kind: Kind }) {
   const hasPending = items.some((item) => item.status === "PENDING");
 
   return (
-    <section className="card space-y-3 border-brand-100 p-4" aria-label="Your posts">
+    <section className="card space-y-3 border-brand-100 p-4" aria-label={t("ui.myPosts")}>
       <div>
-        <h2 className="text-base font-semibold text-slate-900">Your posts</h2>
+        <h2 className="text-base font-semibold text-slate-900">{t("ui.myPosts")}</h2>
         {hasPending && (
           <p className="mt-1 text-xs text-slate-600">
-            New posts are checked by an administrator first. Pending posts are visible only to
-            you until they are approved.
+            {t("ui.pending")}
           </p>
         )}
       </div>
@@ -76,9 +77,9 @@ export function MyPosts({ kind }: { kind: Kind }) {
               >
                 {item.title}
               </Link>
-              <p className="text-xs text-slate-500">Posted {timeAgo(item.createdAt)}</p>
+              <p className="text-xs text-slate-500">{timeAgo(item.createdAt)}</p>
             </div>
-            <Badge tone={statusTone(item.status)}>{LABELS[item.status] ?? humanize(item.status)}</Badge>
+            <Badge tone={statusTone(item.status)}>{statusLabel(item.status)}</Badge>
           </li>
         ))}
       </ul>

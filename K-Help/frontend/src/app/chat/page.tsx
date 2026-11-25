@@ -44,11 +44,11 @@ export default function ChatPage() {
   if (!isAuthenticated) {
     return (
       <EmptyState
-        title="Sign in to use chat"
-        description="Real-time messaging is available to registered members."
+        title={t("ui.signInToChat")}
+        description={t("ui.signInToChatHint")}
         action={
           <Link href="/login">
-            <Button>Sign in</Button>
+            <Button>{t("nav.signIn")}</Button>
           </Link>
         }
       />
@@ -65,18 +65,18 @@ export default function ChatPage() {
       {error && <ErrorState message={error} onRetry={load} />}
 
       {loading ? (
-        <LoadingState message="Loading conversations..." />
+        <LoadingState message={t("ui.loadingChat")} />
       ) : !conversations || conversations.content.length === 0 ? (
         <EmptyState
-          title="No conversations yet"
-          description="Start a chat from a job or housing listing, or from a community profile."
+          title={t("ui.noChat")}
+          description={t("ui.noChatHint")}
           action={
             <div className="flex gap-2">
               <Link href="/jobs">
-                <Button variant="outline">Browse jobs</Button>
+                <Button variant="outline">{t("page.browseJobs")}</Button>
               </Link>
               <Link href="/housing">
-                <Button variant="outline">Browse housing</Button>
+                <Button variant="outline">{t("page.housing.title")}</Button>
               </Link>
             </div>
           }
@@ -109,7 +109,7 @@ export default function ChatPage() {
                   </div>
 
                   <p className="mt-0.5 truncate text-sm text-slate-600">
-                    {conversation.lastMessagePreview || "No messages yet"}
+                    {conversation.lastMessagePreview || t("detail.noMessagesYet")}
                   </p>
 
                   {conversation.contextType && (

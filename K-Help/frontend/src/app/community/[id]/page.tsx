@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import api, { errorMessage } from "@/lib/api";
 import type { Comment, Post } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
@@ -17,6 +18,7 @@ export default function PostDetailPage() {
   const router = useRouter();
   const postId = Number(params.id);
   const { user, isAuthenticated } = useAuth();
+  const { t } = useLocale();
 
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -76,7 +78,7 @@ export default function PostDetailPage() {
     }
   }
 
-  if (loading) return <LoadingState message="Loading post..." />;
+  if (loading) return <LoadingState message={t("ui.loadingPost")} />;
   if (error && !post) return <ErrorState message={error} onRetry={load} />;
   if (!post) return null;
 
@@ -85,7 +87,7 @@ export default function PostDetailPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Link href="/community" className="text-sm text-brand-600 hover:underline">
-        ← Back to community
+        {t("detail.backCommunity")}
       </Link>
 
       {error && <ErrorState message={error} />}
@@ -99,8 +101,8 @@ export default function PostDetailPage() {
 
         <h1 className="text-2xl font-bold text-slate-900">{post.title}</h1>
         <p className="mt-2 text-sm text-slate-500">
-          by {post.authorFullName || post.authorUsername} · {timeAgo(post.createdAt)} ·{" "}
-          {post.viewCount} views
+          {t("ui.by")} {post.authorFullName || post.authorUsername} · {timeAgo(post.createdAt)} ·{" "}
+          {post.viewCount} {t("ui.views")}
         </p>
 
         <div className="mt-6 whitespace-pre-wrap text-slate-700">{post.content}</div>
@@ -108,7 +110,7 @@ export default function PostDetailPage() {
         {canManage && (
           <div className="mt-6 flex gap-2 border-t border-slate-200 pt-4">
             <Button variant="danger" size="sm" onClick={handleDelete}>
-              Delete post
+              {t("detail.deletePost")}
             </Button>
           </div>
         )}
@@ -116,47 +118,47 @@ export default function PostDetailPage() {
 
       <section className="card p-6">
         <h2 className="font-semibold text-slate-900">
-          Comments ({comments.length})
+          {t("detail.comments")} ({comments.length})
         </h2>
 
         {isAuthenticated ? (
           <div className="mt-4 space-y-3">
             {replyTo !== null && (
               <p className="text-xs text-slate-500">
-                Replying to comment #{replyTo} ·{" "}
+                #{replyTo} ·{" "}
                 <button
                   type="button"
                   className="text-brand-600 hover:underline"
                   onClick={() => setReplyTo(null)}
                 >
-                  cancel
+                  {t("page.cancel")}
                 </button>
               </p>
             )}
             <Textarea
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
-              placeholder="Write a comment..."
+              placeholder={t("detail.writeComment")}
               className="min-h-[90px]"
             />
             <div className="flex justify-end">
               <Button onClick={handleComment} loading={submitting} size="sm">
-                {replyTo !== null ? "Post reply" : "Post comment"}
+                {replyTo !== null ? t("detail.postReply") : t("detail.postComment")}
               </Button>
             </div>
           </div>
         ) : (
           <p className="mt-3 text-sm text-slate-600">
             <Link href="/login" className="text-brand-600 hover:underline">
-              Sign in
+              {t("nav.signIn")}
             </Link>{" "}
-            to join the discussion.
+            {t("detail.signInToDiscuss")}
           </p>
         )}
 
         <div className="mt-6 space-y-5">
           {comments.length === 0 && (
-            <p className="text-sm text-slate-500">No comments yet.</p>
+            <p className="text-sm text-slate-500">{t("detail.noComments")}</p>
           )}
 
           {comments.map((comment) => (
