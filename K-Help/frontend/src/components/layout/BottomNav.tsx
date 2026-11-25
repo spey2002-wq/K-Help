@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { InstallAppButton } from "@/components/app/InstallAppButton";
 import { cn } from "@/lib/utils";
+import type { MessageKey } from "@/lib/i18n/locales";
 
 type IconName =
   | "home"
@@ -59,11 +61,11 @@ function Icon({ name, className }: { name: IconName; className?: string }) {
   );
 }
 
-const TABS: { href: string; label: string; icon: IconName }[] = [
-  { href: "/", label: "Home", icon: "home" },
-  { href: "/info", label: "Guides", icon: "book" },
-  { href: "/jobs", label: "Jobs", icon: "briefcase" },
-  { href: "/housing", label: "Housing", icon: "building" },
+const TABS: { href: string; labelKey: MessageKey; icon: IconName }[] = [
+  { href: "/", labelKey: "nav.home", icon: "home" },
+  { href: "/info", labelKey: "nav.guides", icon: "book" },
+  { href: "/jobs", labelKey: "nav.jobs", icon: "briefcase" },
+  { href: "/housing", labelKey: "nav.housing", icon: "building" },
 ];
 
 const MORE_PATHS = ["/community", "/chat", "/ai", "/profile", "/inbox", "/admin", "/login", "/register"];
@@ -76,6 +78,7 @@ function isActive(pathname: string, href: string): boolean {
 export function BottomNav() {
   const pathname = usePathname();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { t } = useLocale();
   const [moreOpen, setMoreOpen] = useState(false);
 
   // Close the sheet whenever the page changes.
@@ -98,19 +101,34 @@ export function BottomNav() {
   const moreActive = MORE_PATHS.some((path) => isActive(pathname, path));
 
   const moreLinks: { href: string; label: string; hint: string; icon: IconName }[] = [
-    { href: "/community", label: "Community", hint: "Ask and share", icon: "users" },
-    { href: "/chat", label: "Chat", hint: "Your messages", icon: "chat" },
-    { href: "/ai", label: "AI Assistant", hint: "Translate Korean", icon: "sparkles" },
+    { href: "/community", label: t("nav.community"), hint: t("more.communityHint"), icon: "users" },
+    { href: "/chat", label: t("nav.chat"), hint: t("more.chatHint"), icon: "chat" },
+    { href: "/ai", label: t("nav.ai"), hint: t("more.aiHint"), icon: "sparkles" },
   ];
   if (isAuthenticated) {
     moreLinks.push(
-      { href: "/profile", label: "My profile", hint: user?.username ?? "Photo and skills", icon: "user" },
-      { href: "/inbox", label: "Inbox", hint: "Inquiries on your posts", icon: "chat" },
-      { href: "/jobs/applications", label: "Applications", hint: "Jobs you applied to", icon: "clipboard" },
+      {
+        href: "/profile",
+        label: t("nav.myProfile"),
+        hint: user?.username ?? t("more.profileHint"),
+        icon: "user",
+      },
+      { href: "/inbox", label: t("nav.inbox"), hint: t("more.inboxHint"), icon: "chat" },
+      {
+        href: "/jobs/applications",
+        label: t("nav.applications"),
+        hint: t("more.applicationsHint"),
+        icon: "clipboard",
+      },
     );
   }
   if (isAdmin) {
-    moreLinks.push({ href: "/admin", label: "Admin", hint: "Moderation", icon: "shield" });
+    moreLinks.push({
+      href: "/admin",
+      label: t("nav.admin"),
+      hint: t("more.adminHint"),
+      icon: "shield",
+    });
   }
 
   return (
@@ -158,7 +176,7 @@ export function BottomNav() {
                   className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-300 py-3 text-sm font-semibold text-slate-700 active:bg-slate-100"
                 >
                   <Icon name="logout" className="h-5 w-5" />
-                  Sign out
+                  {t("nav.signOut")}
                 </button>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
@@ -166,13 +184,13 @@ export function BottomNav() {
                     href="/login"
                     className="rounded-2xl border border-slate-300 py-3 text-center text-sm font-semibold text-slate-700 active:bg-slate-100"
                   >
-                    Sign in
+                    {t("nav.signIn")}
                   </Link>
                   <Link
                     href="/register"
                     className="rounded-2xl bg-brand-gradient py-3 text-center text-sm font-semibold text-white active:opacity-90"
                   >
-                    Create account
+                    {t("nav.createAccount")}
                   </Link>
                 </div>
               )}
@@ -203,7 +221,9 @@ export function BottomNav() {
                   >
                     <Icon name={tab.icon} className="h-[22px] w-[22px]" />
                   </span>
-                  <span className={active ? "text-brand-700" : "text-slate-500"}>{tab.label}</span>
+                  <span className={active ? "text-brand-700" : "text-slate-500"}>
+                    {t(tab.labelKey)}
+                  </span>
                 </Link>
               </li>
             );
@@ -225,7 +245,7 @@ export function BottomNav() {
                 <Icon name="grid" className="h-[22px] w-[22px]" />
               </span>
               <span className={moreOpen || moreActive ? "text-brand-700" : "text-slate-500"}>
-                More
+                {t("nav.more")}
               </span>
             </button>
           </li>

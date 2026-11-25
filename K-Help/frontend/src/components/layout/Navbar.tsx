@@ -3,22 +3,26 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { cn } from "@/lib/utils";
+import type { MessageKey } from "@/lib/i18n/locales";
 
-const NAV_LINKS = [
-  { href: "/community", label: "Community" },
-  { href: "/info", label: "Guides" },
-  { href: "/jobs", label: "Jobs" },
-  { href: "/housing", label: "Housing" },
-  { href: "/chat", label: "Chat" },
-  { href: "/ai", label: "AI Assistant" },
+const NAV_LINKS: { href: string; key: MessageKey }[] = [
+  { href: "/community", key: "nav.community" },
+  { href: "/info", key: "nav.guides" },
+  { href: "/jobs", key: "nav.jobs" },
+  { href: "/housing", key: "nav.housing" },
+  { href: "/chat", key: "nav.chat" },
+  { href: "/ai", key: "nav.ai" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const { user, isAuthenticated, isAdmin, logout, loading } = useAuth();
+  const { t } = useLocale();
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
@@ -42,7 +46,7 @@ export function Navbar() {
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
               )}
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
           {isAdmin && (
@@ -55,9 +59,11 @@ export function Navbar() {
                   : "text-accent-600 hover:bg-accent-50",
               )}
             >
-              Admin
+              {t("nav.admin")}
             </Link>
           )}
+          {/* Language sits with nav links — always visible, not tied to Inbox */}
+          <LanguageSwitcher className="ml-1" />
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
@@ -72,12 +78,12 @@ export function Navbar() {
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                 )}
               >
-                Inbox
+                {t("nav.inbox")}
               </Link>
               {user && (
                 <Link
                   href="/profile"
-                  title="My profile"
+                  title={t("nav.myProfile")}
                   className={cn(
                     "flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-colors",
                     pathname.startsWith("/profile")
@@ -92,37 +98,39 @@ export function Navbar() {
                 </Link>
               )}
               <Button variant="outline" size="sm" onClick={logout}>
-                Sign out
+                {t("nav.signOut")}
               </Button>
             </>
           ) : (
             <>
               <Link href="/login">
                 <Button variant="ghost" size="sm">
-                  Sign in
+                  {t("nav.signIn")}
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="sm">Get started</Button>
+                <Button size="sm">{t("nav.getStarted")}</Button>
               </Link>
             </>
           )}
         </div>
 
-        {/* Phone: compact app bar. Everything else lives in the bottom tab bar. */}
-        <div className="flex items-center md:hidden">
+        {/* Phone: language + profile / sign in */}
+        <div className="flex items-center gap-1 md:hidden">
+          <LanguageSwitcher compact />
           {loading ? null : isAuthenticated && user ? (
-            <Link href="/profile" aria-label="My profile" className="rounded-full active:scale-95">
+            <Link href="/profile" aria-label={t("nav.myProfile")} className="rounded-full active:scale-95">
               <Avatar user={user} className="h-9 w-9 text-sm ring-2 ring-white" />
             </Link>
           ) : (
             <Link href="/login">
               <Button size="sm" variant="outline">
-                Sign in
+                {t("nav.signIn")}
               </Button>
             </Link>
           )}
         </div>
-      </div>    </header>
+      </div>
+    </header>
   );
 }
