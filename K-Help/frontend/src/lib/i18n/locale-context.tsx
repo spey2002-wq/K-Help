@@ -26,6 +26,7 @@ type LocaleContextValue = {
   setLocale: (code: LocaleCode) => void;
   t: (key: MessageKey) => string;
   current: LocaleOption;
+  ready: boolean;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -58,7 +59,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setLocaleState(code);
   }, []);
 
-  const t = useCallback((key: MessageKey) => translate(locale, key), [locale]);
+  // Keep English as the source language in the DOM. PageTranslator (Google Translate)
+  // then converts the whole site so every page updates, not only dictionary keys.
+  const t = useCallback((key: MessageKey) => translate("en", key), []);
 
   const current = useMemo(
     () => LOCALES.find((item) => item.code === locale) ?? LOCALES[0],
@@ -66,8 +69,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ locale, locales: LOCALES, setLocale, t, current }),
-    [locale, setLocale, t, current],
+    () => ({ locale, locales: LOCALES, setLocale, t, current, ready }),
+    [locale, setLocale, t, current, ready],
   );
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
