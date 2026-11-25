@@ -11,6 +11,7 @@ import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
+import { labelPropertyType } from "@/lib/i18n/labels";
 import { formatKrw, humanize, timeAgo } from "@/lib/utils";
 import { OwnerInbox } from "@/components/listings/OwnerInbox";
 
@@ -112,7 +113,7 @@ export default function HousingDetailPage() {
 
         <div className="p-8">
           <div className="flex flex-wrap gap-2">
-            <Badge tone="brand">{humanize(listing.propertyType)}</Badge>
+            <Badge tone="brand">{labelPropertyType(t, listing.propertyType)}</Badge>
             {listing.furnished && <Badge tone="green">{t("housing.furnished")}</Badge>}
             {listing.petFriendly && <Badge tone="purple">{t("housing.pets")}</Badge>}
             {listing.utilitiesIncluded && <Badge tone="amber">{t("detail.utilities")}</Badge>}

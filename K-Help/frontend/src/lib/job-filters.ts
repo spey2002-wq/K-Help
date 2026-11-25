@@ -157,8 +157,25 @@ function labelOf<T extends string>(options: { value: T; label: string }[], value
   return options.find((option) => option.value === value)?.label ?? humanize(value);
 }
 
+/** Optional localized labels for active filter chips. */
+export interface ActiveFilterLabels {
+  category?: (value: string) => string;
+  jobType?: (value: string) => string;
+  noKorean?: string;
+  koreanRequired?: string;
+  visa?: string;
+  meals?: string;
+  housing?: string;
+  insurance?: string;
+  transport?: string;
+  hiringNow?: string;
+}
+
 /** One removable chip per active filter, shown under the search bar. */
-export function activeFilterChips(f: JobFilters): ActiveFilterChip[] {
+export function activeFilterChips(
+  f: JobFilters,
+  labels: ActiveFilterLabels = {},
+): ActiveFilterChip[] {
   const chips: ActiveFilterChip[] = [];
 
   if (f.q.trim()) {
@@ -170,14 +187,14 @@ export function activeFilterChips(f: JobFilters): ActiveFilterChip[] {
   for (const value of f.categories) {
     chips.push({
       key: `category-${value}`,
-      label: labelOf(CATEGORY_OPTIONS, value),
+      label: labels.category?.(value) ?? labelOf(CATEGORY_OPTIONS, value),
       remove: (x) => ({ ...x, categories: x.categories.filter((item) => item !== value) }),
     });
   }
   for (const value of f.jobTypes) {
     chips.push({
       key: `type-${value}`,
-      label: humanize(value),
+      label: labels.jobType?.(value) ?? humanize(value),
       remove: (x) => ({ ...x, jobTypes: x.jobTypes.filter((item) => item !== value) }),
     });
   }
@@ -242,18 +259,21 @@ export function activeFilterChips(f: JobFilters): ActiveFilterChip[] {
   if (f.koreanRequired) {
     chips.push({
       key: "korean",
-      label: f.koreanRequired === "false" ? "No Korean needed" : "Korean required",
+      label:
+        f.koreanRequired === "false"
+          ? (labels.noKorean ?? "No Korean needed")
+          : (labels.koreanRequired ?? "Korean required"),
       remove: (x) => ({ ...x, koreanRequired: "" }),
     });
   }
 
   const toggles: [keyof JobFilters, string][] = [
-    ["visaSponsorship", "Visa sponsorship"],
-    ["mealsProvided", "Meals provided"],
-    ["housingProvided", "Housing provided"],
-    ["insuranceProvided", "Insurance"],
-    ["transportProvided", "Transport pay"],
-    ["urgent", "Hiring now"],
+    ["visaSponsorship", labels.visa ?? "Visa sponsorship"],
+    ["mealsProvided", labels.meals ?? "Meals provided"],
+    ["housingProvided", labels.housing ?? "Housing provided"],
+    ["insuranceProvided", labels.insurance ?? "Insurance"],
+    ["transportProvided", labels.transport ?? "Transport pay"],
+    ["urgent", labels.hiringNow ?? "Hiring now"],
   ];
   for (const [key, label] of toggles) {
     if (f[key] === true) {

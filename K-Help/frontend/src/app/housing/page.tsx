@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { Pagination } from "@/components/ui/Pagination";
-import { formatKrw, humanize, timeAgo } from "@/lib/utils";
+import { labelPropertyType } from "@/lib/i18n/labels";
+import { formatKrw, timeAgo } from "@/lib/utils";
 
 const PROPERTY_TYPES: PropertyType[] = [
   "ONE_ROOM",
@@ -102,7 +103,7 @@ export default function HousingPage() {
       <div className="card space-y-4 p-4">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
-            label="Keyword"
+            label={t("page.search")}
             value={filters.q}
             onChange={(event) => setFilters({ ...filters, q: event.target.value })}
             onKeyDown={(event) => {
@@ -111,22 +112,22 @@ export default function HousingPage() {
                 setApplied(filters);
               }
             }}
-            placeholder="Title or description"
+            placeholder={t("ui.searchPlaceholder")}
           />
           <Select
-            label="Property type"
+            label={t("housing.allTypes")}
             value={filters.propertyType}
             onChange={(event) => setFilters({ ...filters, propertyType: event.target.value })}
           >
-            <option value="">Any type</option>
+            <option value="">{t("housing.allTypes")}</option>
             {PROPERTY_TYPES.map((value) => (
               <option key={value} value={value}>
-                {humanize(value)}
+                {labelPropertyType(t, value)}
               </option>
             ))}
           </Select>
           <Input
-            label="City"
+            label={t("housing.city")}
             value={filters.city}
             onChange={(event) => setFilters({ ...filters, city: event.target.value })}
             placeholder="Seoul"
@@ -140,21 +141,21 @@ export default function HousingPage() {
                 setApplied(filters);
               }}
             >
-              Apply filters
+              {t("jobs.applyFilters")}
             </Button>
           </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
-            label="Max deposit (KRW)"
+            label={t("housing.maxDeposit")}
             type="number"
             value={filters.maxDeposit}
             onChange={(event) => setFilters({ ...filters, maxDeposit: event.target.value })}
             placeholder="5000000"
           />
           <Input
-            label="Max monthly rent (KRW)"
+            label={t("housing.maxRent")}
             type="number"
             value={filters.maxRent}
             onChange={(event) => setFilters({ ...filters, maxRent: event.target.value })}
@@ -173,7 +174,7 @@ export default function HousingPage() {
                   setApplied(next);
                 }}
               />
-              Furnished
+              {t("housing.furnished")}
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -187,7 +188,7 @@ export default function HousingPage() {
                   setApplied(next);
                 }}
               />
-              Pet friendly
+              {t("housing.pets")}
             </label>
           </div>
         </div>
@@ -215,10 +216,10 @@ export default function HousingPage() {
 
                 <div className="flex flex-1 flex-col p-5">
                   <div className="flex flex-wrap gap-2">
-                    <Badge tone="brand">{humanize(listing.propertyType)}</Badge>
-                    {listing.furnished && <Badge tone="green">Furnished</Badge>}
+                    <Badge tone="brand">{labelPropertyType(t, listing.propertyType)}</Badge>
+                    {listing.furnished && <Badge tone="green">{t("housing.furnished")}</Badge>}
                     {listing.status !== "AVAILABLE" && (
-                      <Badge tone={statusTone(listing.status)}>{humanize(listing.status)}</Badge>
+                      <Badge tone={statusTone(listing.status)}>{listing.status}</Badge>
                     )}
                   </div>
 
@@ -232,32 +233,32 @@ export default function HousingPage() {
                   <p className="mt-1 text-sm text-slate-600">
                     {[listing.city, listing.district, listing.neighborhood]
                       .filter(Boolean)
-                      .join(", ") || "Location not specified"}
+                      .join(", ") || t("housing.noLocation")}
                   </p>
 
                   <div className="mt-4 space-y-1 text-sm">
                     <p className="text-slate-700">
-                      <span className="text-slate-500">Deposit:</span>{" "}
+                      <span className="text-slate-500">{t("housing.deposit")}:</span>{" "}
                       <span className="font-medium">{formatKrw(listing.depositAmount)}</span>
                     </p>
                     <p className="text-slate-700">
-                      <span className="text-slate-500">Monthly:</span>{" "}
+                      <span className="text-slate-500">{t("housing.monthly")}:</span>{" "}
                       <span className="font-medium">{formatKrw(listing.monthlyRent)}</span>
                     </p>
                     {listing.areaSqm && (
                       <p className="text-slate-700">
-                        <span className="text-slate-500">Area:</span> {listing.areaSqm} m²
+                        <span className="text-slate-500">{t("housing.area")}:</span> {listing.areaSqm} m²
                       </p>
                     )}
                   </div>
 
                   <p className="mt-4 flex-1 text-xs text-slate-500">
-                    Listed by {listing.listedByUsername} · {timeAgo(listing.createdAt)}
+                    {t("housing.listedBy")} {listing.listedByUsername} · {timeAgo(listing.createdAt)}
                   </p>
 
                   <Link href={`/housing/${listing.id}`} className="mt-3">
                     <Button variant="outline" size="sm" className="w-full">
-                      View details
+                      {t("housing.viewDetails")}
                     </Button>
                   </Link>
                 </div>

@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/Badge";
 import { ErrorState, LoadingState } from "@/components/ui/Feedback";
 import { BankDirectory } from "@/components/info/BankDirectory";
 import { LinkedContent } from "@/components/info/LinkedContent";
-import { guideCategoryLabel, timeAgo } from "@/lib/utils";
+import { labelGuideCategory } from "@/lib/i18n/labels";
+import { timeAgo } from "@/lib/utils";
 
 export default function GuideDetailPage() {
   const params = useParams<{ id: string }>();
@@ -71,7 +72,7 @@ export default function GuideDetailPage() {
 
       <div className="card p-8">
         <div className="flex flex-wrap gap-2">
-          <Badge tone="brand">{guideCategoryLabel(guide.category)}</Badge>
+          <Badge tone="brand">{labelGuideCategory(t, guide.category)}</Badge>
           {guide.country && <Badge tone="slate">{guide.country}</Badge>}
         </div>
 

@@ -12,7 +12,8 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Chip } from "@/components/jobs/Chip";
 import { BankDirectory } from "@/components/info/BankDirectory";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { guideCategoryLabel, timeAgo } from "@/lib/utils";
+import { labelGuideCategory } from "@/lib/i18n/labels";
+import { timeAgo } from "@/lib/utils";
 
 const VISA_BY_COUNTRY: GuideCategory = "VISA_BY_COUNTRY";
 
@@ -103,13 +104,13 @@ export default function InfoPage() {
         >
           <span>
             <span className="block font-semibold text-slate-900">
-              Coming to Korea? Find the visa process for your country
+              {t("guides.visaBannerTitle")}
             </span>
             <span className="mt-0.5 block text-sm text-slate-600">
-              Visa types, documents and step-by-step guidance by nationality.
+              {t("guides.visaBannerDesc")}
             </span>
           </span>
-          <span className="text-sm font-medium text-brand-600">View visa guides →</span>
+          <span className="text-sm font-medium text-brand-600">{t("guides.visaBannerCta")}</span>
         </button>
       )}
 
@@ -167,7 +168,7 @@ export default function InfoPage() {
         </Chip>
         {CATEGORIES.map((value) => (
           <Chip key={value} selected={category === value} onClick={() => chooseCategory(value)}>
-            {guideCategoryLabel(value)}
+            {labelGuideCategory(t, value)}
           </Chip>
         ))}
       </div>
@@ -190,7 +191,7 @@ export default function InfoPage() {
                 className="card card-hover flex flex-col p-5"
               >
                 <div className="flex flex-wrap gap-2 self-start">
-                  <Badge tone="brand">{guideCategoryLabel(guide.category)}</Badge>
+                  <Badge tone="brand">{labelGuideCategory(t, guide.category)}</Badge>
                   {guide.country && <Badge tone="slate">{guide.country}</Badge>}
                 </div>
                 <h2 className="mt-3 font-semibold leading-snug text-slate-900">
@@ -200,7 +201,7 @@ export default function InfoPage() {
                   {guide.summary}
                 </p>
                 <p className="mt-4 text-xs text-slate-500">
-                  Updated {timeAgo(guide.updatedAt)} · {guide.viewCount} views
+                  {t("ui.updated")} {timeAgo(guide.updatedAt)} · {guide.viewCount} {t("ui.views")}
                 </p>
               </Link>
             ))}

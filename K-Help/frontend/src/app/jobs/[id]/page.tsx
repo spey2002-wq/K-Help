@@ -15,12 +15,15 @@ import { formatKrw, formatSalaryRange, humanize, timeAgo } from "@/lib/utils";
 import { OwnerInbox } from "@/components/listings/OwnerInbox";
 import {
   MIN_HOURLY_WAGE_KRW,
-  categoryLabel,
   experienceLabel,
   formatWorkDays,
   shiftLabel,
   workPeriodLabel,
 } from "@/lib/job-options";
+import {
+  labelJobCategory,
+  labelJobType,
+} from "@/lib/i18n/labels";
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
@@ -105,8 +108,8 @@ export default function JobDetailPage() {
       <article className="card p-8">
         <div className="flex flex-wrap gap-2">
           {job.urgent && <Badge tone="red">{t("jobs.hiringNow")}</Badge>}
-          {job.category && <Badge tone="slate">{categoryLabel(job.category)}</Badge>}
-          <Badge tone="brand">{humanize(job.jobType)}</Badge>
+          {job.category && <Badge tone="slate">{labelJobCategory(t, job.category)}</Badge>}
+          <Badge tone="brand">{labelJobType(t, job.jobType)}</Badge>
           {job.visaSponsorship && <Badge tone="green">{t("jobs.visa")}</Badge>}
           {!job.koreanRequired && <Badge tone="purple">{t("jobs.noKorean")}</Badge>}
           <Badge tone={statusTone(job.status)}>{humanize(job.status)}</Badge>

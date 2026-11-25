@@ -19,11 +19,7 @@ import {
   CATEGORY_OPTIONS,
   SORT_OPTIONS,
   WEEKEND,
-  categoryLabel,
-  experienceLabel,
   formatWorkDays,
-  shiftLabel,
-  workPeriodLabel,
 } from "@/lib/job-options";
 import {
   EMPTY_FILTERS,
@@ -35,6 +31,14 @@ import {
   toggleItem,
   type JobFilters,
 } from "@/lib/job-filters";
+import {
+  labelExperience,
+  labelJobCategory,
+  labelJobType,
+  labelShift,
+  labelSort,
+  labelWorkPeriod,
+} from "@/lib/i18n/labels";
 
 const SHORT_TERM = ["ONE_DAY", "UNDER_1_MONTH"] as const;
 
@@ -100,7 +104,18 @@ export default function JobsPage() {
   }
 
   const panelCount = countPanelFilters(filters);
-  const chips = activeFilterChips(applied);
+  const chips = activeFilterChips(applied, {
+    category: (value) => labelJobCategory(t, value),
+    jobType: (value) => labelJobType(t, value),
+    noKorean: t("jobs.noKorean"),
+    koreanRequired: t("jobs.koreanRequired"),
+    visa: t("jobs.visa"),
+    meals: t("jobs.meals"),
+    housing: t("jobs.housing"),
+    insurance: t("jobs.insurance"),
+    transport: t("jobs.transport"),
+    hiringNow: t("jobs.hiringNow"),
+  });
   const invalidRange = salaryRangeInvalid(filters);
   const payNeedsPeriod =
     (applied.sort === "PAY_HIGH" || applied.sort === "PAY_LOW") && applied.salaryPeriod === "";
@@ -145,7 +160,7 @@ export default function JobsPage() {
               selected={filters.categories.includes(option.value)}
               onClick={() => patch({ categories: toggleItem(filters.categories, option.value) })}
             >
-              {option.label}
+              {labelJobCategory(t, option.value)}
             </Chip>
           ))}
         </div>
@@ -223,10 +238,10 @@ export default function JobsPage() {
             <JobFilterPanel filters={filters} onChange={setFilters} onApply={() => commit(filters)} />
             <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
               <Button variant="ghost" onClick={clearAll} disabled={!hasAnyFilter(filters)}>
-                Clear filters
+                {t("ui.clearFilters")}
               </Button>
               <Button onClick={() => commit(filters)} disabled={invalidRange}>
-                Apply filters
+                {t("jobs.applyFilters")}
               </Button>
             </div>
           </>
@@ -235,7 +250,7 @@ export default function JobsPage() {
         {chips.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Active
+              {t("jobs.active")}
             </span>
             {chips.map((chip) => (
               <button
@@ -243,7 +258,7 @@ export default function JobsPage() {
                 type="button"
                 className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
                 onClick={() => commit(chip.remove(applied))}
-                aria-label={`Remove filter ${chip.label}`}
+                aria-label={`${chip.label}`}
               >
                 {chip.label}
                 <span aria-hidden="true">×</span>
@@ -254,7 +269,7 @@ export default function JobsPage() {
               className="text-xs font-medium text-slate-500 underline hover:text-slate-700"
               onClick={clearAll}
             >
-              Clear all
+              {t("jobs.clearAll")}
             </button>
           </div>
         )}
@@ -265,11 +280,11 @@ export default function JobsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600" aria-live="polite">
           {loading || !jobs
-            ? "Searching..."
-            : `${jobs.totalElements} ${jobs.totalElements === 1 ? "job" : "jobs"} found`}
+            ? t("jobs.searching")
+            : `${jobs.totalElements} ${jobs.totalElements === 1 ? t("jobs.jobFound") : t("jobs.jobsFound")}`}
         </p>
         <label className="flex items-center gap-2 text-sm text-slate-600">
-          Sort by
+          {t("jobs.sortBy")}
           <select
             className="input w-auto py-1.5"
             value={filters.sort}
@@ -277,17 +292,14 @@ export default function JobsPage() {
           >
             {SORT_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {labelSort(t, option.value)}
               </option>
             ))}
           </select>
         </label>
       </div>
       {payNeedsPeriod && (
-        <p className="-mt-3 text-xs text-amber-700">
-          Hourly and monthly pay are not comparable. Open All filters and choose Per hour or Per
-          month to sort pay fairly.
-        </p>
+        <p className="-mt-3 text-xs text-amber-700">{t("jobs.paySortHint")}</p>
       )}
 
       {loading ? (
@@ -309,18 +321,18 @@ export default function JobsPage() {
           <div className="space-y-3">
             {jobs.content.map((job) => {
               const perks = [
-                job.mealsProvided && "Meals",
-                job.housingProvided && "Housing",
-                job.insuranceProvided && "Insurance",
-                job.transportProvided && "Transport pay",
+                job.mealsProvided && t("jobs.mealsShort"),
+                job.housingProvided && t("jobs.housing"),
+                job.insuranceProvided && t("jobs.insurance"),
+                job.transportProvided && t("jobs.transport"),
               ].filter(Boolean) as string[];
 
               const conditions = [
-                shiftLabel(job.shift),
-                job.hoursPerWeek ? `${job.hoursPerWeek} hrs/week` : "",
+                labelShift(t, job.shift),
+                job.hoursPerWeek ? `${job.hoursPerWeek} ${t("jobs.hrsWeek")}` : "",
                 formatWorkDays(job.workDays),
-                workPeriodLabel(job.workPeriod),
-                experienceLabel(job.experienceLevel),
+                labelWorkPeriod(t, job.workPeriod),
+                labelExperience(t, job.experienceLevel),
               ].filter(Boolean);
 
               return (
@@ -328,11 +340,13 @@ export default function JobsPage() {
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="mb-2 flex flex-wrap gap-2">
-                        {job.urgent && <Badge tone="red">Hiring now</Badge>}
-                        {job.category && <Badge tone="slate">{categoryLabel(job.category)}</Badge>}
-                        <Badge tone="brand">{humanize(job.jobType)}</Badge>
-                        {job.visaSponsorship && <Badge tone="green">Visa sponsorship</Badge>}
-                        {!job.koreanRequired && <Badge tone="purple">No Korean needed</Badge>}
+                        {job.urgent && <Badge tone="red">{t("jobs.hiringNow")}</Badge>}
+                        {job.category && (
+                          <Badge tone="slate">{labelJobCategory(t, job.category)}</Badge>
+                        )}
+                        <Badge tone="brand">{labelJobType(t, job.jobType)}</Badge>
+                        {job.visaSponsorship && <Badge tone="green">{t("jobs.visa")}</Badge>}
+                        {!job.koreanRequired && <Badge tone="purple">{t("jobs.noKorean")}</Badge>}
                         {job.status !== "APPROVED" && (
                           <Badge tone={statusTone(job.status)}>{humanize(job.status)}</Badge>
                         )}
@@ -372,16 +386,17 @@ export default function JobsPage() {
                       )}
 
                       <p className="mt-2 text-xs text-slate-500">
-                        Posted by {job.postedByUsername} · {timeAgo(job.createdAt)} · {job.viewCount} views
+                        {t("detail.postedBy")} {job.postedByUsername} · {timeAgo(job.createdAt)} ·{" "}
+                        {job.viewCount} {t("ui.views")}
                         {job.deadline
-                          ? ` · Apply by ${new Date(job.deadline).toLocaleDateString()}`
+                          ? ` · ${t("jobs.applyBy")} ${new Date(job.deadline).toLocaleDateString()}`
                           : ""}
                       </p>
                     </div>
 
                     <Link href={`/jobs/${job.id}`} className="shrink-0">
                       <Button variant="outline" size="sm">
-                        View details
+                        {t("jobs.viewDetails")}
                       </Button>
                     </Link>
                   </div>
